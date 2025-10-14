@@ -1,88 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="lt">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Divirgent Test V2.1 – OCEAN + Tipai (LT)</title>
   <style>
-    :root { --bg:#0b0c10; --fg:#eaf0f6; --muted:#a3b3c2; --accent:#4dc0b5; --error:#ff6b6b; }
-    html,body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; background:var(--bg); color:var(--fg); }
-    header,main,footer { max-width:980px; margin:auto; padding:16px; }
-    header h1 { margin:8px 0 0; font-size:1.4rem; }
-    header p { margin:4px 0 0; color:var(--muted); }
-    .actions { display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 20px; }
-    button { background:var(--accent); color:#001a1a; border:none; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer; }
-    button.secondary { background:#21333d; color:var(--fg); }
-    button.warning { background:#3a1c1c; color:#ffb3b3; border:1px solid #833; }
-    section h2 { margin:24px 0 8px; font-size:1.1rem; }
-    .note { color:var(--muted); font-size:.95rem; }
-    .error { color:var(--error); font-weight:600; margin:8px 0; }
-    .hidden { display:none !important; }
-    .item { padding:12px; border-bottom:1px solid #1a2630; }
-    .item h4 { margin:0 0 8px; font-size:1rem; }
-    .scale { display:flex; gap:10px; flex-wrap:wrap; }
-    .scale label { display:flex; align-items:center; gap:6px; background:#121a21; padding:6px 8px; border-radius:6px; border:1px solid #1f2b35; }
-    .domain-tag { font-size:.85rem; color:#9dc1b8; margin-left:6px; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    @media (max-width:800px){ .grid { grid-template-columns:1fr; } }
-    .card { background:#0f151c; border:1px solid #1f2b35; border-radius:12px; padding:16px; }
-    table { width:100%; border-collapse:collapse; }
-    th,td { padding:8px 10px; text-align:left; border-bottom:1px solid #1f2b35; }
-    canvas { max-width:100%; }
-    .muted { color:var(--muted); }
-    .kbd { background:#111; border:1px solid #333; border-radius:4px; padding:2px 6px; font-family:ui-monospace,Consolas,monospace; }
+    body { background:#0f1720; color:#eaf0f6; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height:1.45; margin:0; }
+    header, main, footer { max-width:980px; margin:0 auto; padding:16px; }
+    h1, h2, h3 { margin: 0.6em 0; }
+    .actions { display:flex; gap:12px; margin:12px 0 20px; }
+    button { background:#4dc0b5; color:#0f1720; border:0; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer; }
+    button.secondary { background:#1b2a36; color:#eaf0f6; border:1px solid #274254; }
+    .hidden { display:none; }
+    .item { padding:14px 12px; border:1px solid #213241; border-radius:10px; margin:10px 0; background:#13212b; }
+    .item h4 { margin:0 0 10px; font-size:16px; }
+    .domain-tag { color:#9fb3c8; font-weight:500; font-size:12px; margin-left:6px; }
+    .scale { display:grid; grid-template-columns: repeat(5, minmax(160px,1fr)); gap:8px; }
+    label { display:flex; align-items:center; gap:8px; background:#0f1a23; padding:8px 10px; border-radius:8px; border:1px solid #203141; }
+    #globalError { background:#3b1f29; color:#ffdce0; border:1px solid #6b2737; padding:10px 12px; border-radius:8px; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; }
+    th, td { border:1px solid #213241; padding:8px; text-align:left; }
+    th { background:#152431; }
+    ol { padding-left:22px; }
+    canvas { background:#0f1a23; border:1px solid #213241; border-radius:10px; margin-top:12px; }
+    footer { color:#9fb3c8; font-size:13px; text-align:center; padding-bottom:24px; }
   </style>
 </head>
 <body>
 <header>
   <h1>Divirgent Test V2.1 – OCEAN + Tipai (LT)</h1>
-  <p class="note">~8–10 min · 60 teiginių · be prisijungimo · skaičiuojama naršyklėje</p>
+  <p>~8–10 min · 60 teiginių · be prisijungimo · skaičiuojama naršyklėje</p>
   <div class="actions">
     <button id="btnStart">Pradėti testą</button>
-    <button id="btnSubmit" class="secondary">Gauti rezultatą</button>
-    <button id="btnReset" class="warning">Išvalyti</button>
+    <button id="btnSubmit">Gauti rezultatą</button>
+    <button id="btnReset" class="secondary">Išvalyti</button>
   </div>
-  <div id="globalError" class="error hidden"></div>
+  <div id="globalError" class="hidden"></div>
 </header>
 
 <main>
-  <section id="about" class="card">
-    <h2>Kas tai?</h2>
-    <p>Radaras: Ekstraversija, Malonumas, Sąžiningumas/Atidumas, Emocinis stabilumas, Atvirumas. Tipų artimumas (TOP‑3): Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė.</p>
-    <p class="note">Privatumas: atsakymai niekur nesiunčiami; skaičiavimas lokaliai.</p>
-  </section>
-
-  <section id="items" class="card">
+  <section id="items">
     <h2>Teiginiai</h2>
-    <p class="note">Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. <em>Invertuoti teiginiai</em> skaičiuojami priešingai.</p>
+    <p>Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. Invertuoti teiginiai skaičiuojami priešingai.</p>
     <div id="itemsContainer"></div>
   </section>
 
-  <section id="results" class="grid">
-    <div class="card">
-      <h2>Rezultatai</h2>
-      <div id="summary" class="muted">Užpildykite visus teiginius ir paspauskite <span class="kbd">Gauti rezultatą</span>.</div>
-      <table id="tblScores" class="hidden">
-        <thead><tr><th>Domenas</th><th>Vidurkis (1–5)</th><th>Normalizuota (−1…+1)</th><th>%</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <h3 class="hidden" id="typesHdr">Tipų artimumas (TOP‑3)</h3>
-      <ol id="topTypes" class="hidden"></ol>
-    </div>
-    <div class="card">
-      <h2>Radar</h2>
-      <canvas id="radar"></canvas>
-    </div>
+  <section id="results">
+    <h2>Rezultatai</h2>
+    <p id="summary">Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.</p>
+
+    <table id="tblScores" class="hidden">
+      <thead>
+        <tr>
+          <th>Domenas</th>
+          <th>Vidurkis (1–5)</th>
+          <th>Normalizuota (–1…+1)</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3 id="typesHdr" class="hidden">Tipų artimumas (TOP‑3)</h3>
+    <ol id="topTypes" class="hidden"></ol>
+
+    <h3>Radar</h3>
+    <canvas id="radar" width="560" height="420"></canvas>
   </section>
 </main>
 
 <footer>
-  <p class="note">© 2025 Divirgent Test · Atviro kodo demonstracija · Suderinama su GitHub Pages</p>
+  © 2025 Divirgent Test · Atviro kodo demonstracija · Suderinama su GitHub Pages
 </footer>
 
-<!-- Chart.js radarui -->
+<!-- Biblioteka diagramai -->
 https://cdn.jsdelivr.net/npm/chart.js@4.4.4</script>
-<!-- Programinė logika -->
+<!-- Tavo logika -->
 ./app.js</script>
 </body>
 </html>
