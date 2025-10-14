@@ -2,13 +2,13 @@
 
 > **🧭 LIVE TESTAS:** 👉 **https://olemoz1977.github.io/Divergent-test-2/public/index.html**
 
-Vieno puslapio (static) testas su **Big Five (OCEAN)** profiliu, **tipų** reitingu, **radar** grafiku, **rekomendacijomis**. Veikia **GitHub Pages** – be serverio, be duomenų siuntimo.
+Vieno puslapio (static) testas su **Big Five (OCEAN)** profiliu, **tipų** reitingu, **rekomendacijomis**. Veikia **GitHub Pages** – be serverio, be duomenų siuntimo.
 
 ---
 
 ## 🔎 Kas tai?
 
-- **Big Five (OCEAN)Openness, Conscientiousness, Extraversion, Agreeableness Neuroticism:** Atvirumas (O), Sąmoningumas (C), Ekstraversija (E), Sutariamumas (A), Neurotiškumas (N).  
+- **Big Five (OCEAN) - Openness, Conscientiousness, Extraversion, Agreeableness Neuroticism:** Atvirumas (O), Sąmoningumas (C), Ekstraversija (E), Sutariamumas (A),Emocinį stabilumą (N).  
 - **Tipai (archetipai):** Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė.  
 - **Rezultatas: **artimiausi tipai**, **rekomendacijos** 
 
