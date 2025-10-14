@@ -16,6 +16,7 @@
     header, main, footer { max-width:980px; margin:0 auto; padding:16px; }
     h1,h2,h3{margin:.6em 0}
     .actions { display:flex; flex-wrap:wrap; gap:12px; margin:12px 0 20px; }
+    .actions.center { justify-content:center; }
     button { background:var(--accent); color:var(--bg); border:0; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer; }
     button.secondary { background:var(--accent2); color:var(--fg); border:1px solid #274254; }
     .hidden { display:none; }
@@ -33,17 +34,25 @@
     ol { padding-left:22px; }
     canvas { background:#0f1a23; border:1px solid var(--line); border-radius:10px; margin-top:12px; }
     footer { color:var(--muted); font-size:13px; text-align:center; padding-bottom:24px; }
+
+    /* Kortelės TOP‑3 aprašymams */
+    #typeDescriptions { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); margin-top:10px; }
+    .type-card { background:#13212b; border:1px solid #213241; border-radius:10px; padding:12px; }
+    .type-card h4 { margin:0 0 6px; font-size:16px; }
+    .type-card p  { margin:0; color:#cfe1ee; }
   </style>
 </head>
 <body>
 <header>
   <h1>Divirgent Test V2.1 – OCEAN + Tipai (LT)</h1>
   <p>~8–10 min · 60 teiginių · be prisijungimo · skaičiuojama naršyklėje</p>
+
+  <!-- Viršuje paliekam tik Start/Reset -->
   <div class="actions">
     <button id="btnStart">Pradėti testą</button>
-    <button id="btnSubmit">Gauti rezultatą</button>
     <button id="btnReset" class="secondary">Išvalyti</button>
   </div>
+
   <div id="globalError" class="hidden"></div>
 </header>
 
@@ -51,7 +60,13 @@
   <section id="items">
     <h2>Teiginiai</h2>
     <p>Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. Invertuoti teiginiai skaičiuojami priešingai.</p>
+
     <div id="itemsContainer"></div>
+
+    <!-- „Gauti rezultatą“ – po visais klausimais -->
+    <div class="actions center">
+      <button id="btnSubmit">Gauti rezultatą</button>
+    </div>
   </section>
 
   <section id="results">
@@ -73,6 +88,10 @@
     <h3 id="typesHdr" class="hidden">Tipų artimumas (TOP‑3)</h3>
     <ol id="topTypes" class="hidden"></ol>
 
+    <!-- TOP‑3 tipų aprašymai -->
+    <h3 id="typesDescHdr" class="hidden">TOP‑3 tipų aprašymai</h3>
+    <div id="typeDescriptions" class="hidden"></div>
+
     <h3>Radar</h3>
     <canvas id="radar" width="560" height="420"></canvas>
   </section>
@@ -82,7 +101,7 @@
   © 2025 Divirgent Test · Atviro kodo demonstracija · Suderinama su GitHub Pages
 </footer>
 
-<!-- 1) Įdėtas JSON kaip inline duomenys – jokių fetch -->
+<!-- 1) Inline JSON – jokių fetch -->
 <script type="application/json" id="itemsData">
 {
   "name": "Divirgent Test V2.0 (LT)",
@@ -183,16 +202,14 @@
     "Mentorius":   {"E": 0.2,  "A": 0.8,  "C": 0.7,  "ES": 0.7, "O": 0.3},
     "Variklis":    {"E": 0.9,  "A": -0.1, "C": 0.6,  "ES": 0.3, "O": 0.7},
     "Architektė":  {"E": -0.5, "A": -0.3, "C": 0.7,  "ES": 0.7, "O": 0.9}
-  },
-  "notes": "Klausimai sukurti remiantis Big Five; struktūrinės gairės orientuotos į BFI-2-S (Soto & John, 2017) ir IPIP viešo domeno praktiką.",
-  "disclaimer": "Tai nėra klinikinis instrumentas. Naudoti mokymui, savirefleksijai ir demonstracijai; be normų rezultatų interpretacija yra indikatyvi."
+  }
 }
 </script>
 
-<!-- 2) Chart.js UMD (globalus window.Chart). Jei nori offline – galiu įdėti inline versiją. -->
-https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
+<!-- 2) Chart.js UMD (globalus window.Chart). Jei nori 100% vieno failo – galiu įdėti inline versiją (bus ~200KB min). -->
+<script src.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
 
-<!-- 3) Visa logika inline – jokio fetch, jokio app.js failo -->
+<!-- 3) Visa logika inline – jokio fetch -->
 <script>
 (() => {
   'use strict';
@@ -210,6 +227,8 @@ https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
 
     topHdr: document.getElementById('typesHdr'),
     topList: document.getElementById('topTypes'),
+    typesDescHdr: document.getElementById('typesDescHdr'),
+    typeDesc: document.getElementById('typeDescriptions'),
 
     globalErr: document.getElementById('globalError'),
     summary: document.getElementById('summary'),
@@ -222,12 +241,25 @@ https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
   let ITEMS = [];
   let RADAR = null;
 
+  // ---- Aprašymai TOP‑3 kortelėms
+  const TYPE_DESCRIPTIONS = {
+    'Dirigentė': 'Tikslų orientacija, greiti sprendimai, aiškūs standartai. Stiprybė – kryptis ir ryžtas; rizika – per daug kontrolės ar nepakankamas įsiklausymas.',
+    'Analitikas': 'Sisteminis mąstymas, duomenys, logika. Stiprybė – argumentuota analizė; rizika – peranalizavimas ir lėtesni sprendimai.',
+    'Diplomatė': 'Santykiai, empatija, kompromisai. Stiprybė – klimato gerinimas; rizika – konfliktų vengimas, nepopuliarių sprendimų atidėliojimas.',
+    'Inovatorė': 'Idėjos, eksperimentai, galimybių matymas. Stiprybė – naujovės; rizika – neužbaigtumas, mažiau struktūros.',
+    'Stabilizuotoja': 'Nuoseklumas, procesai, kokybė. Stiprybė – patikimumas; rizika – pasipriešinimas pokyčiams.',
+    'Mentorius': 'Ugdymas, grįžtamasis ryšys, komandų plėtra. Stiprybė – žmonių augimas; rizika – per daug globos, tempas lėtėja dėl įtraukimo.',
+    'Variklis': 'Energija, aktyvacija, rezultatas. Stiprybė – mobilizuoja; rizika – per didelis spaudimas, praleidžiamos detalės.',
+    'Architektė': 'Sistemų dizainas, struktūra, ilgalaikė logika. Stiprybė – aiškūs modeliai; rizika – pernelyg teorinis, mažiau lankstus.'
+  };
+
   // ---- Pagalbinės
   const scrollTo = (node) => node?.scrollIntoView({ behavior:'smooth', block:'start' });
   const normMinus1to1 = (mean15) => ((mean15 - 3) / 2);
   const pct0to100     = (mean15) => Math.round(((mean15 - 1) / 4) * 100);
   const showError = (msg) => { if (!el.globalErr) { console.error(msg); return; } el.globalErr.textContent = msg; el.globalErr.classList.remove('hidden'); };
   const clearError = () => { if (!el.globalErr) return; el.globalErr.textContent=''; el.globalErr.classList.add('hidden'); };
+
   const isReversed = (item, meta) => item?.reverse === true || (meta?.reverse_ids?.includes(item.id) ?? false);
 
   const byDomain = (arr) => {
@@ -263,6 +295,17 @@ https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
     });
     arr.sort((a,b)=> a.dist - b.dist);
     return arr.slice(0,3);
+  };
+
+  // Pašalina pasikartojančius teiginius pagal teksto turinį (case-insensitive)
+  const dedupeByText = (arr) => {
+    const seen = new Set();
+    return arr.filter(it => {
+      const key = (it.text || '').trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   };
 
   // ---- Render formos
@@ -333,11 +376,29 @@ https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
     el.topList.innerHTML = '';
     top.forEach(t => {
       const li = document.createElement('li');
-      li.textContent = `${t.name} (panašumas ${(t.sim*100).toFixed(0)}%)`;
+      li.textContent = `${t.name} (panašumas ${(t.sim * 100).toFixed(0)}%)`;
       el.topList.appendChild(li);
     });
     el.topHdr.classList.remove('hidden');
     el.topList.classList.remove('hidden');
+
+    // --- TOP‑3 tipų aprašymai (kortelės)
+    if (el.typeDesc && el.typesDescHdr) {
+      el.typeDesc.innerHTML = '';
+      top.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'type-card';
+        const title = document.createElement('h4');
+        title.textContent = t.name;
+        const p = document.createElement('p');
+        p.textContent = TYPE_DESCRIPTIONS[t.name] || 'Aprašymas ruošiama.';
+        card.appendChild(title);
+        card.appendChild(p);
+        el.typeDesc.appendChild(card);
+      });
+      el.typesDescHdr.classList.remove('hidden');
+      el.typeDesc.classList.remove('hidden');
+    }
 
     if (el.summary) el.summary.textContent = 'Rezultatai sugeneruoti. Žemiau – domenų vidurkiai ir tipų artimumas.';
   };
@@ -396,6 +457,9 @@ https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
     el.topHdr.classList.add('hidden');
     el.topList.classList.add('hidden');
     el.topList.innerHTML = '';
+    el.typesDescHdr.classList.add('hidden');
+    el.typeDesc.classList.add('hidden');
+    el.typeDesc.innerHTML = '';
     el.summary.textContent = 'Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.';
     if (RADAR){ RADAR.destroy(); RADAR = null; }
     clearError();
@@ -413,10 +477,14 @@ https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js</script>
         : (Array.isArray(META.items_core) && META.items_core.length ? META.items_core : []);
       if (!ITEMS.length) throw new Error('JSON neturi items_full / items_core.');
 
+      // Pašalinam dubliuotus teiginius pagal tekstą
+      const before = ITEMS.length;
+      ITEMS = dedupeByText(ITEMS);
+      const after = ITEMS.length;
+      if (after < before) console.log(`[Divirgent] Dedup: ${before} -> ${after}`);
+
       renderForm();
       clearError();
-      // Diagnostika:
-      // console.log('[Divirgent] init OK. ITEMS=', ITEMS.length, 'DOM children=', el.itemsWrap.childElementCount);
     } catch (e) {
       console.error(e);
       showError(`Klaida kraunant klausimus: ${e.message}. Patikrinkite inline JSON formatą.`);
