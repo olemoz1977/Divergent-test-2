@@ -8,7 +8,7 @@ Vieno puslapio (static) testas su **Big Five (OCEAN)** profiliu, **tipų** reiti
 
 ## 🔎 Kas tai?
 
-- **Big Five (OCEAN) - Openness, Conscientiousness, Extraversion, Agreeableness Neuroticism:** Atvirumas (O), Sąmoningumas (C), Ekstraversija (E), Sutariamumas (A),Emocinį stabilumą (N).  
+- **Big Five (OCEAN) - Openness, Conscientiousness, Extraversion, Agreeableness Neuroticism:** Atvirumas (O), Sąmoningumas (C), Ekstraversija (E), Sutariamumas (A), Neurotiškumas (N).  
 - **Tipai (archetipai):** Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė.  
 - **Rezultatas: **artimiausi tipai**, **rekomendacijos** 
 
