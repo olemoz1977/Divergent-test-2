@@ -1,6 +1,6 @@
 # 🌌 Divirgent Test — Asmenybės pažinimo įrankis (OCEAN + Tipai)
 
-> **🧭 LIVE TESTAS:** 👉 [https://olemoz1977.github.io/Divergent-test-2/public/]
+> **🧭 LIVE TESTAS:** 👉[Pradėti testą](https://olemoz1977.github.io/Divergent-test-2/public/)
 
 Vieno puslapio (static) testas su **Big Five (OCEAN)** profiliu, **tipų** reitingu, **rekomendacijomis**. Veikia **GitHub Pages** – be serverio, be duomenų siuntimo.
 
