@@ -241,56 +241,6 @@
     clearError();
   };
 
-  const init = async () => {
-    try {
-      const requiredNodes = [el.itemsWrap, el.tbl, el.tblBody, el.topHdr, el.topList, el.summary];
-      if (requiredNodes.some(n => !n)) {
-        throw new Error('HTML neturi visų reikiamų elementų (patikrink ID).');
-      }
-
-      const res = await fetch(JSON_PATH, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status} – nepavyko parsisiųsti JSON.`);
-      const data = await res.json();
-
-      META = data;
-      ITEMS = Array.isArray(data.items_full) && data.items_full.length
-        ? data.items_full
-        : (Array.isArray(data.items_core) && data.items_core.length ? data.items_core : []);
-
-      if (!ITEMS.length) throw new Error('JSON neturi items_full / items_core.');
-
-      renderForm();
-      clearError();
-    } catch (e) {
-      console.error(e);
-      showError(`Klaida kraunant klausimus: ${e.message}. Patikrinkite „divirgent_v2_items_lt.json“ formatą ir kelią.`);
-    }
-  };
-
-  el.btnStart?.addEventListener('click', () => scrollTo(document.getElementById('items')));
-  el.btnReset?.addEventListener('click', resetForm);
-  el.btnSubmit?.addEventListener('click', () => {
-    clearError();
-    const resp = readResponses();
-    if (!resp.ok) {
-      showError(`Neatsakytas teiginys: ${resp.missing}. Užpildykite visus teiginius.`);
-      return;
-    }
-    const scores = byDomain(resp.rows);
-    const vec = vectorFromScores(scores);
-    renderScores(scores, vec);
-    renderRadar(scores);
-    scrollTo(document.getElementById('results'));
-  });
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-console.log('[Divirgent] app.js įkeltas');
-window.__DIVIRGENT_LOADED__ = true;
 const init = async () => {
   try {
 +   console.log('[Divirgent] init() start. readyState=', document.readyState);
@@ -324,3 +274,29 @@ const init = async () => {
     showError(`Klaida kraunant klausimus: ${e.message}. Patikrinkite „divirgent_v2_items_lt.json“ formatą ir kelią.`);
   }
 };
+
+  el.btnStart?.addEventListener('click', () => scrollTo(document.getElementById('items')));
+  el.btnReset?.addEventListener('click', resetForm);
+  el.btnSubmit?.addEventListener('click', () => {
+    clearError();
+    const resp = readResponses();
+    if (!resp.ok) {
+      showError(`Neatsakytas teiginys: ${resp.missing}. Užpildykite visus teiginius.`);
+      return;
+    }
+    const scores = byDomain(resp.rows);
+    const vec = vectorFromScores(scores);
+    renderScores(scores, vec);
+    renderRadar(scores);
+    scrollTo(document.getElementById('results'));
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+console.log('[Divirgent] app.js įkeltas');
+window.__DIVIRGENT_LOADED__ = true;
+
