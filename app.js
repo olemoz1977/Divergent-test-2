@@ -150,7 +150,7 @@
     }
     el.tbl.classList.remove('hidden');
 
-    // ⬇⬇⬇ PATAISYTA EILUTĖ
+    // PATAISYTA EILUTĖ
     const top = top3Types(vec, META.type_centroids || {});
     el.topList.innerHTML = '';
     top.forEach(t => {
@@ -200,7 +200,6 @@
       }
     };
     if (RADAR) RADAR.destroy();
-    // Chart.js CDN įkeliamas index.html, todėl čia 'Chart' jau bus
     RADAR = new Chart(el.radar, cfg);
   };
 
@@ -231,16 +230,12 @@
     }
   };
 
-  // Eventai
   el.btnStart?.addEventListener('click', () => scrollTo(document.getElementById('items')));
   el.btnReset?.addEventListener('click', resetForm);
   el.btnSubmit?.addEventListener('click', () => {
     clearError();
     const resp = readResponses();
-    if (!resp.ok) {
-      showError(`Neatsakytas teiginys: ${resp.missing}. Užpildykite visus teiginius.`);
-      return;
-    }
+    if (!resp.ok) { showError(`Neatsakytas teiginys: ${resp.missing}. Užpildykite visus teiginius.`); return; }
     const scores = byDomain(resp.rows);
     const vec = vectorFromScores(scores);
     renderScores(scores, vec);
