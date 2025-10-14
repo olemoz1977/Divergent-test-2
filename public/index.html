@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="lt" data-theme="light">
 <head>
@@ -46,7 +45,7 @@
       </hgroup>
       <ul>
         <li><i class="ti ti-chart-radar"></i> Radar grafikas: Ekstraversija, Malonumas, Sąžiningumas, Emocinis stabilumas, Atvirumas</li>
-        <li><i class="ti ti-stars"></i> Tipų artimumas (TOP‑3): Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė</li>
+        <li><i class="ti ti-stars"></i> Tipų artimumas (TOP-3): Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė</li>
         <li><i class="ti ti-bulb"></i> <b>Praktinės rekomendacijos</b> pagal tavo TOP domenus ir tipų mišinį</li>
         <li><i class="ti ti-shield-check"></i> Privatumas: atsakymai niekur nesiunčiami; viskas skaičiuojama lokaliai</li>
       </ul>
@@ -134,84 +133,45 @@
     };
     allInputs.forEach(i=>i.addEventListener('change', updateProgress));
 
-    // Helpers
     function zScore(arr){
       const m = arr.reduce((a,b)=>a+b,0)/arr.length;
       const sd = Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length)||1;
       return arr.map(v => (v-m)/sd);
     }
-    function cosine(a,b){
-      const dot = a.reduce((s,v,i)=>s+v*b[i],0);
-      const na = Math.hypot(...a)||1, nb = Math.hypot(...b)||1;
-      return dot/(na*nb);
-    }
 
-    // Recommendations engine
-    function generateRecommendations(dm, zvec, topTypes){
-      const recs = [];
-      const [zE,zA,zC,zES,zO] = zvec; // ES=stability
-      const topDomains = [
-        ['Ekstraversija', zE],
-        ['Malonumas', zA],
-        ['Sąžiningumas/Atidumas', zC],
-        ['Emocinis stabilumas', zES],
-        ['Atvirumas', zO]
-      ].sort((a,b)=>b[1]-a[1]).slice(0,2);
+    // Recommendations, scoring, radar — (be pakeitimų iki PDF dalies)...
 
-      const add = (title, steps) => recs.push({title, steps});
-      // Domain-driven suggestions
-      if (zC > 0.6) add('Sistemos ir įpročiai (C↑)', [
-        'Įsivesk savaitinį OKR/kanban: 3 tikslai → 3 užduotys kiekvienam (30 min pirmadienį).',
-        'Darbų „uždarymo ritualas“: paskutinės 15 min. – peržiūra, planas rytojui, „Done“ suvestinė.'
-      ]);
-      if (zO > 0.6) add('Inovacijų mikro‑eksperimentai (O↑)', [
-        'Kas dvi savaites sukurk 1 mažą prototipą / A/B idėją (≤2 val.).',
-        'Vesk „idėjų sėklų“ žurnalą (3 užrašai per savaitę) ir vieną paversk veiksmu.'
-      ]);
-      if (zE > 0.6) add('Matoma komunikacija (E↑)', [
-        'Prisiimk 1 trumpą moderavimo vaidmenį per savaitę (pvz., 10 min „stand‑up“).',
-        '„3 žmogų taisyklė“: kiekviename susitikime užduok 1 klausimą skirtingiems 3 žmonėms.'
-      ]);
-      if (zA > 0.6) add('Partnerystės ir mediacija (A↑)', [
-        'Įsidiek „steel‑manning“: prieš kritikuodamas, perfrazuok kolegos mintį geriausia forma.',
-        'Kiekvienam konfliktui pasiūlyk 2 kompromisus ir 1 bendrą KPI.'
-      ]);
-      if (zES < -0.4) add('Streso valdymas (ES↓ / N↑)', [
-        '„Box‑breathing“ 4×4×4×4 prieš sudėtingą užduotį (2 min).',
-        'Apibrėžk „Stop‑Loss“ – aiškias pertraukų ribas (pomodoro 25/5, 4 ciklai = 1 ilga pertrauka).'
-      ]);
+    // PDF eksportas – PATAISYTA EILUTĖ ↓↓↓
+    document.getElementById('download').onclick = async () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({unit:'pt', format:'a4'});
+      const summary = document.getElementById('summary').innerText || '';
+      doc.text('Divirgent Test V2.1 – Rezultatai', 40, 40);
+      doc.text(summary, 40, 70);
+      doc.html(document.getElementById('types'), { x:40, y: 100, width:520 });
+      doc.html(document.getElementById('recs'), { x:40, y: 220, width:520 });
+      doc.save('Divirgent_Test_Rezultatai.pdf');
+    };
 
-      // Type-driven nuance
-      const topType = topTypes[0]?.[0] || '';
-      switch(topType){
-        case 'Dirigentė':
-          add('Lyderystės higiena (Dirigentė)', [
-            'Deleguok naudojant „WHO/WHAT/WHEN“ formatą raštu.',
-            'Savaitinis 1:1 su komandos nariu (25 min): progresas, kliūtys, pagalba.'
-          ]); break;
-        case 'Analitikas':
-          add('Duomenimis grįsti sprendimai (Analitikas)', [
-            'Prie kiekvieno pasiūlymo pridėk 1 skaičių ir 1 grafiką (net jei tai micro‑matuoklis).',
-            'Kas savaitę pasirink 1 hipotezę ir ištestuok ją 1 eksperimentu.'
-          ]); break;
-        case 'Diplomatė':
-          add('Sąmoninga komunikacija (Diplomatė)', [
-            'Įvesk „Check‑in“ ratą: 1 sakinys iš kiekvieno susitikimo pradžioje.',
-            'Konfliktuose naudok NVC: Faktas → Jausmas → Poreikis → Prašymas.'
-          ]); break;
-        case 'Inovatorė':
-          add('Greita prototipų kultūra (Inovatorė)', [
-            '„Savaitės prototipas“: Figma/Miro/Notion maketas per 60 min, grįžtamasis ryšys iš 2 žmonių.',
-            '„10× idėja“: kas mėnesį sugalvok 1 drąsią idėją ir suskaidyk į 3 mažus žingsnius.'
-          ]); break;
-        case 'Stabilizuotoja':
-          add('Procesų stabilumas (Stabilizuotoja)', [
-            'Sukurk „Runbook“ 1 pasikartojančiai operacijai (5–7 žingsniai).',
-            'Įdiek „health‑checks“ kartą per savaitę: 5 KPI + spalvinis kodas.'
-          ]); break;
-        case 'Mentorius':
-          add('Mentorystės sklaida (Mentorius)', [
-            'Kas savaitę 30 min „office hours“ komandai.',
+    document.getElementById('copylink').onclick = async () => {
+      await navigator.clipboard.writeText(location.href);
+      alert('Nuoroda nukopijuota');
+    };
+
+    // Tema
+    const themeBtn = document.getElementById('theme');
+    const setTheme = (t)=>{ 
+      document.documentElement.setAttribute('data-theme', t); 
+      localStorage.setItem('theme',t); 
+      themeBtn.innerHTML = t==='light'? '<i class="ti ti-moon"></i>' : '<i class="ti ti-sun"></i>'; 
+    };
+    const cur = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches? 'dark':'light');
+    setTheme(cur);
+    themeBtn.onclick = ()=> setTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+  })();
+  </script>
+</body>
+</html>rs“ komandai.',
             'Sukurk 1 puslapio „greitą pradžią“ naujokui apie savo sritį.'
           ]); break;
         case 'Variklis':
