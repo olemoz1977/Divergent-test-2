@@ -291,3 +291,36 @@
 })();
 console.log('[Divirgent] app.js įkeltas');
 window.__DIVIRGENT_LOADED__ = true;
+const init = async () => {
+  try {
++   console.log('[Divirgent] init() start. readyState=', document.readyState);
+
+    const requiredNodes = [el.itemsWrap, el.tbl, el.tblBody, el.topHdr, el.topList, el.summary];
+    if (requiredNodes.some(n => !n)) {
+      throw new Error('HTML neturi visų reikiamų elementų (patikrink ID).');
+    }
+
+-   const res = await fetch(JSON_PATH, { cache: 'no-store' });
++   const res = await fetch(`${JSON_PATH}?v=${Date.now()}`, { cache: 'no-store' });
++   console.log('[Divirgent] fetch status=', res.status);
+    if (!res.ok) throw new Error(`HTTP ${res.status} – nepavyko parsisiųsti JSON.`);
+
+    const data = await res.json();
++   console.log('[Divirgent] JSON ok. items_full=', data.items_full?.length, 'items_core=', data.items_core?.length);
+
+    META = data;
+    ITEMS = Array.isArray(data.items_full) && data.items_full.length
+      ? data.items_full
+      : (Array.isArray(data.items_core) && data.items_core.length ? data.items_core : []);
+
++   console.log('[Divirgent] ITEMS pasirinktų kiekis =', ITEMS.length);
+
+    if (!ITEMS.length) throw new Error('JSON neturi items_full / items_core.');
+
+    renderForm();
++   console.log('[Divirgent] renderForm() baigė. DOM children =', el.itemsWrap?.childElementCount);
+  } catch (e) {
+    console.error(e);
+    showError(`Klaida kraunant klausimus: ${e.message}. Patikrinkite „divirgent_v2_items_lt.json“ formatą ir kelią.`);
+  }
+};
