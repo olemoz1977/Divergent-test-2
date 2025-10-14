@@ -289,3 +289,5 @@
     init();
   }
 })();
+console.log('[Divirgent] app.js įkeltas');
+window.__DIVIRGENT_LOADED__ = true;
