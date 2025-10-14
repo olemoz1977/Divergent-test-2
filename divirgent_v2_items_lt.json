@@ -1,6 +1,6 @@
 {
   "name": "Divirgent Test V2.0 (LT)",
-  "likert": ["Visiškai nesutinku","Nesutinku","Nei taip, nei ne","Sutinku","Visiškai sutinku"],
+  "likert": ["Visiškai nesutinku", "Nesutinku", "Nei taip, nei ne", "Sutinku", "Visiškai sutinku"],
   "items_core": [
     {"id":"E1","domain":"Ekstraversija","reverse":false,"text":"Mėgstu bendrauti su nepažįstamais žmonėmis."},
     {"id":"E2","domain":"Ekstraversija","reverse":true,"text":"Linkęs laiką leisti vienumoje."},
@@ -8,14 +8,12 @@
     {"id":"E4","domain":"Ekstraversija","reverse":true,"text":"Dažniau renkuosi tylą ir stebėjimą nei kalbėjimą."},
     {"id":"E5","domain":"Ekstraversija","reverse":false,"text":"Jaučiu energijos pakilimą būdamas tarp žmonių."},
     {"id":"E6","domain":"Ekstraversija","reverse":true,"text":"Vengiu dėmesio centro."},
-
     {"id":"A1","domain":"Malonumas","reverse":false,"text":"Empatiškai reaguoju į kitų jausmus."},
     {"id":"A2","domain":"Malonumas","reverse":true,"text":"Linkęs ginčytis ir kabinėtis dėl smulkmenų."},
     {"id":"A3","domain":"Malonumas","reverse":false,"text":"Lengvai atleidžiu klaidas."},
     {"id":"A4","domain":"Malonumas","reverse":true,"text":"Esu šaltas ir abejingas kitų poreikiams."},
     {"id":"A5","domain":"Malonumas","reverse":false,"text":"Gerbiu žmonių skirtumus ir požiūrius."},
     {"id":"A6","domain":"Malonumas","reverse":true,"text":"Dažnai įtariu blogiausius kitų ketinimus."},
-
     {"id":"C1","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Laikausi tvarkos ir terminų."},
     {"id":"C2","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Dažnai atidėlioju pradėti užduotis."},
     {"id":"C3","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Sistemingai planuoju užduotis."},
@@ -89,24 +87,17 @@
     {"id":"O11","domain":"Atvirumas patirčiai","reverse":false,"text":"Mėgstu kurti – nuo sprendimų iki dizaino."},
     {"id":"O12","domain":"Atvirumas patirčiai","reverse":true,"text":"Nelaikau savęs kūrybišku žmogumi."}
   ],
-  "scoring": {
-    "Ekstraversija": ["E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12"],
-    "Malonumas": ["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12"],
-    "Sąžiningumas/Atidumas": ["C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12"],
-    "Neurotiškumas": ["N1","N2","N3","N4","N5","N6","N7","N8","N9","N10","N11","N12"],
-    "Atvirumas patirčiai": ["O1","O2","O3","O4","O5","O6","O7","O8","O9","O10","O11","O12"]
-  },
   "reverse_ids": ["E2","E4","E6","A2","A4","A6","C2","C4","C6","N2","N4","N6","O2","O4","O6","E8","E10","E12","A8","A10","A12","C8","C10","C12","N8","N10","N12","O8","O10","O12"],
   "type_centroids": {
-    "Dirigentė":      {"E":0.8,"A":0.2,"C":0.8,"ES":0.6,"O":0.2},
-    "Analitikas":     {"E":-0.6,"A":0.0,"C":0.4,"ES":0.6,"O":0.8},
-    "Diplomatė":      {"E":0.2,"A":0.8,"C":0.2,"ES":0.6,"O":0.2},
-    "Inovatorė":      {"E":0.6,"A":-0.2,"C":-0.1,"ES":0.3,"O":0.9},
-    "Stabilizuotoja": {"E":-0.4,"A":0.6,"C":0.8,"ES":0.8,"O":-0.4},
-    "Mentorius":      {"E":0.2,"A":0.8,"C":0.7,"ES":0.7,"O":0.3},
-    "Variklis":       {"E":0.9,"A":-0.1,"C":0.6,"ES":0.3,"O":0.7},
-    "Architektė":     {"E":-0.5,"A":-0.3,"C":0.7,"ES":0.7,"O":0.9}
+    "Dirigentė":   {"E": 0.8,  "A": 0.2,  "C": 0.8,  "ES": 0.6, "O": 0.2},
+    "Analitikas":  {"E": -0.6, "A": 0.0,  "C": 0.4,  "ES": 0.6, "O": 0.8},
+    "Diplomatė":   {"E": 0.2,  "A": 0.8,  "C": 0.2,  "ES": 0.6, "O": 0.2},
+    "Inovatorė":   {"E": 0.6,  "A": -0.2, "C": -0.1, "ES": 0.3, "O": 0.9},
+    "Stabilizuotoja":{"E": -0.4,"A": 0.6,  "C": 0.8,  "ES": 0.8, "O": -0.4},
+    "Mentorius":   {"E": 0.2,  "A": 0.8,  "C": 0.7,  "ES": 0.7, "O": 0.3},
+    "Variklis":    {"E": 0.9,  "A": -0.1, "C": 0.6,  "ES": 0.3, "O": 0.7},
+    "Architektė":  {"E": -0.5, "A": -0.3, "C": 0.7,  "ES": 0.7, "O": 0.9}
   },
-  "notes": "Klausimai sukurti remiantis Big Five koncepcija; struktūrinės gairės orientuotos į BFI-2-S (Soto & John, 2017) ir IPIP viešo domeno praktiką.",
+  "notes": "Klausimai sukurti remiantis Big Five; struktūrinės gairės orientuotos į BFI-2-S (Soto & John, 2017) ir IPIP viešo domeno praktiką.",
   "disclaimer": "Tai nėra klinikinis instrumentas. Naudoti mokymui, savirefleksijai ir demonstracijai; be normų rezultatų interpretacija yra indikatyvi."
 }
