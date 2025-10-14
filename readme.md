@@ -9,7 +9,7 @@
 
 ## Kaip naudoti
 
-1. Atidaryk https://olemoz1977.github.io/Divergent-test-2/public/
+1. Atidaryk  [https://olemoz1977.github.io/Divergent-test-2/public/]
 2. Pažymėk atsakymus (1–5). Invertuoti teiginiai pažymėti *kursyvu* ir perskaičiuojami automatiškai.
 3. Spausk **Gauti rezultatą** → gausi radar grafiką, TOP‑3 tipus ir **praktines rekomendacijas**.
 4. Paspausk **Atsisiųsti PDF**, jei reikia.
