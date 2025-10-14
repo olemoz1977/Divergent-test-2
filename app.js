@@ -1,6 +1,6 @@
 /* Divirgent Test – klientinė logika (LT) */
 (() => {
-  const JSON_PATH = './divirgent_v2_items_lt.json'; // naudoja pataisytą JSON
+  const JSON_PATH = './divirgent_v2_items_lt.json';
 
   const el = {
     btnStart:   document.getElementById('btnStart'),
@@ -16,16 +16,13 @@
     radar:      document.getElementById('radar')
   };
 
-  let META = null;     // JSON meta (likert, centroidai…)
-  let ITEMS = [];      // klausimų masyvas (items_full | items_core)
-  let RADAR = null;    // Chart.js instance
+  let META = null;
+  let ITEMS = [];
+  let RADAR = null;
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // Pagalbinės funkcijos
   const scrollTo = (node) => node?.scrollIntoView({ behavior:'smooth', block:'start' });
-
-  const normMinus1to1 = (mean15) => ((mean15 - 3) / 2);                      // 1..5 → −1..+1
-  const pct0to100      = (mean15) => Math.round(((mean15 - 1) / 4) * 100);   // 1..5 → 0..100%
+  const normMinus1to1 = (mean15) => ((mean15 - 3) / 2);
+  const pct0to100      = (mean15) => Math.round(((mean15 - 1) / 4) * 100);
 
   const byDomain = (arr) => {
     const map = new Map();
@@ -42,7 +39,6 @@
   };
 
   const isReversed = (item, meta) => {
-    // atsižvelgiame tiek į "reverse":true, tiek į "reverse_ids" masyvą
     if (item.reverse === true) return true;
     if (meta?.reverse_ids && Array.isArray(meta.reverse_ids)) {
       return meta.reverse_ids.includes(item.id);
@@ -50,7 +46,7 @@
     return false;
   };
 
-  const toES = (nNorm) => -nNorm; // ES = priešingas ženklas nuo Neurotiškumo
+  const toES = (nNorm) => -nNorm;
 
   const vectorFromScores = (scores) => {
     const e  = normMinus1to1(scores['Ekstraversija'].mean);
@@ -70,7 +66,7 @@
   const top3Types = (vec, centroids) => {
     const arr = Object.entries(centroids).map(([name, c]) => {
       const d = euclidDist(vec, c);
-      const sim = 1 / (1 + d); // paprastas panašumo matas
+      const sim = 1 / (1 + d);
       return { name, dist: d, sim };
     });
     arr.sort((a,b)=> a.dist - b.dist);
@@ -78,16 +74,16 @@
   };
 
   const showError = (msg) => {
+    if (!el.globalErr) { console.error(msg); return; }
     el.globalErr.textContent = msg;
     el.globalErr.classList.remove('hidden');
   };
   const clearError = () => {
+    if (!el.globalErr) return;
     el.globalErr.textContent = '';
     el.globalErr.classList.add('hidden');
   };
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // UI generavimas
   const renderForm = () => {
     const likert = META.likert ?? ["Visiškai nesutinku","Nesutinku","Nei taip, nei ne","Sutinku","Visiškai sutinku"];
     const frag = document.createDocumentFragment();
@@ -132,15 +128,14 @@
     for (const it of ITEMS) {
       const sel = document.querySelector(`input[name="${it.id}"]:checked`);
       if (!sel) return { ok:false, missing: it.id };
-      const raw = Number(sel.value); // 1..5
-      const val = isReversed(it, META) ? (6 - raw) : raw; // apverčiame jei reikia
+      const raw = Number(sel.value);
+      const val = isReversed(it, META) ? (6 - raw) : raw;
       out.push({ id:it.id, domain:it.domain, raw, value:val });
     }
     return { ok:true, rows: out };
   };
 
   const renderScores = (scores, vec) => {
-    // lentelė
     el.tblBody.innerHTML = '';
     const order = ['Ekstraversija','Malonumas','Sąžiningumas/Atidumas','Neurotiškumas','Atvirumas patirčiai'];
     for (const key of order) {
@@ -155,7 +150,7 @@
     }
     el.tbl.classList.remove('hidden');
 
-    // tipai
+    // ⬇⬇⬇ PATAISYTA EILUTĖ
     const top = top3Types(vec, META.type_centroids || {});
     el.topList.innerHTML = '';
     top.forEach(t => {
@@ -166,7 +161,6 @@
     el.topHdr.classList.remove('hidden');
     el.topList.classList.remove('hidden');
 
-    // suvestinė
     el.summary.textContent = 'Rezultatai sugeneruoti. Žemiau – domenų vidurkiai ir tipų artimumas.';
   };
 
@@ -176,11 +170,10 @@
       E: scores['Ekstraversija'].mean,
       A: scores['Malonumas'].mean,
       C: scores['Sąžiningumas/Atidumas'].mean,
-      ES: 6 - scores['Neurotiškumas'].mean, // 1..5 --> ES
+      ES: 6 - scores['Neurotiškumas'].mean,
       O: scores['Atvirumas patirčiai'].mean
     };
     const dataPct = labels.map(k => pct0to100(mean[k]));
-
     const cfg = {
       type: 'radar',
       data: {
@@ -206,8 +199,8 @@
         plugins: { legend:{ labels:{ color:'#eaf0f6' } } }
       }
     };
-
     if (RADAR) RADAR.destroy();
+    // Chart.js CDN įkeliamas index.html, todėl čia 'Chart' jau bus
     RADAR = new Chart(el.radar, cfg);
   };
 
@@ -222,8 +215,6 @@
     clearError();
   };
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // Inicijavimas
   const init = async () => {
     try {
       const res = await fetch(JSON_PATH, { cache:'no-store' });
@@ -241,9 +232,9 @@
   };
 
   // Eventai
-  el.btnStart.addEventListener('click', () => scrollTo(document.getElementById('items')));
-  el.btnReset.addEventListener('click', resetForm);
-  el.btnSubmit.addEventListener('click', () => {
+  el.btnStart?.addEventListener('click', () => scrollTo(document.getElementById('items')));
+  el.btnReset?.addEventListener('click', resetForm);
+  el.btnSubmit?.addEventListener('click', () => {
     clearError();
     const resp = readResponses();
     if (!resp.ok) {
@@ -257,7 +248,6 @@
     scrollTo(document.getElementById('results'));
   });
 
-  // Start
   document.readyState === 'loading'
     ? document.addEventListener('DOMContentLoaded', init)
     : init();
