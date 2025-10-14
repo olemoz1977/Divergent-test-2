@@ -2,484 +2,511 @@
 <html lang="lt">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Divirgent Test V2.1 – OCEAN (LT)</title>
-
+  <meta name="description" content="Divirgent Test V2.1 – Big Five (OCEAN) vieno failo testas: 60 teiginių, rezultatai naršyklėje, TOP‑3 stiprybės ir augimo sritys su rekomendacijomis, tipų artimumas." />
+  <meta name="color-scheme" content="dark light" />
   <style>
-    :root{
-      --bg:#0f1720; --fg:#eaf0f6; --muted:#9fb3c8; --panel:#13212b; --line:#213241;
-      --accent:#4dc0b5; --accent2:#1b2a36;
+    /* ===========================
+       Divirgent Test – vieno failo stiliai
+       Versija: 2.1
+       =========================== */
+    :root{--c0:#0ea5e9;--c1:#22c55e;--c2:#f59e0b;--c3:#a78bfa;--c4:#ef4444;--bg:#0b1320;--fg:#e5e7eb;--muted:#9ca3af;--panel:#0f172a;--line:#1f2937}
+    html,body{height:100%}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;line-height:1.45;margin:0;background:var(--bg);color:var(--fg)}
+    .wrap{max-width:980px;margin:24px auto;padding:16px}
+    h1,h2,h3{margin:0.6em 0}
+    .topbar{position:sticky;top:0;background:rgba(11,19,32,0.85);backdrop-filter:saturate(1.2) blur(6px);padding:10px 0;border-bottom:1px solid var(--line);z-index:10}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    button, .btn{background:#111827;color:var(--fg);border:1px solid #334155;border-radius:8px;padding:10px 14px;cursor:pointer;text-decoration:none}
+    button:hover,.btn:hover{background:#0f172a}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    .card{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel)}
+    .domain{font-weight:600}
+    .item{padding:12px;border:1px dashed var(--line);border-radius:10px;background:rgba(11,19,32,0.6)}
+    .scale{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+    .scale label{display:flex;flex-direction:column;align-items:center;font-size:12px;color:#cbd5e1}
+    .scale input{accent-color:#22c55e;cursor:pointer}
+    .progress{height:10px;background:#111827;border-radius:999px;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg,var(--c0),var(--c1),var(--c2));width:0%}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left}
+    .mono{font-variant-numeric:tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+    .pill{display:inline-block;padding:.2em .6em;border:1px solid var(--line);border-radius:999px;margin:.15em .25em;background:rgba(11,19,32,0.6)}
+    .kudos{font-size:12px;color:#94a3b8;margin-top:16px}
+    .domain-tag{display:inline-block;min-width:28px;text-align:center;padding:.1em .5em;border-radius:999px;border:1px solid var(--line);margin-right:.5em}
+    .O{background:#072538;border-color:#0ea5e940}
+    .C{background:#072a1f;border-color:#22c55e40}
+    .E{background:#2a1d07;border-color:#f59e0b40}
+    .A{background:#201b2e;border-color:#a78bfa40}
+    .N{background:#2a1111;border-color:#ef444440}
+    .inline-note{font-size:12px;color:#a1a1aa}
+    .flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .right{margin-left:auto}
+    .danger{border-color:#7f1d1d}
+    .ok{border-color:#14532d}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    @media(min-width:900px){
+      .grid{grid-template-columns: 1fr 1fr}
     }
-    *{box-sizing:border-box}
-    body { background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; line-height:1.45; margin:0; }
-    header, main, footer { max-width:980px; margin:0 auto; padding:16px; }
-    h1,h2,h3{margin:.6em 0}
-    p{margin:.4em 0 .8em}
-    .actions { display:flex; flex-wrap:wrap; gap:12px; margin:12px 0 20px; }
-    .actions.center { justify-content:center; }
-    button { background:var(--accent); color:var(--bg); border:0; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer; }
-    button.secondary { background:var(--accent2); color:var(--fg); border:1px solid #274254; }
-    .hidden { display:none !important; }
 
-    #globalError { background:#3b1f29; color:#ffdce0; border:1px solid #6b2737; padding:10px 12px; border-radius:8px; margin:10px 0; }
-
-    .card { background:#13212b; border:1px solid #213241; border-radius:10px; padding:12px; margin-top:10px; }
-    .item { padding:14px 12px; border:1px solid #213241; border-radius:10px; margin:10px 0; background:#0f1a23; }
-    .item h4 { margin:0 0 10px; font-size:16px; }
-    .domain-tag { color:#9fb3c8; font-weight:500; font-size:12px; margin-left:6px; }
-    .scale { display:grid; grid-template-columns: repeat(5, minmax(160px,1fr)); gap:8px; }
-    label { display:flex; align-items:center; gap:8px; background:#0f1a23; padding:8px 10px; border-radius:8px; border:1px solid #203141; color:var(--fg); }
-
-    table { width:100%; border-collapse: collapse; margin-top:10px; }
-    th, td { border:1px solid #213241; padding:8px; text-align:left; }
-    th { background:#152431; }
-
-    .list { display:grid; gap:10px; margin:8px 0 6px; padding-left:0; list-style:none; }
-    .pill { display:flex; gap:8px; padding:10px 12px; background:#0f1a23; border:1px solid #203141; border-radius:10px; }
-    .pill strong { white-space:nowrap; }
-    .pill .pct { color:#9adbd4; font-weight:700; }
-
-    .grid-cards { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); }
-    .tcard { background:#0f1a23; border:1px solid #203141; border-radius:10px; padding:12px; }
-    .tcard h4 { margin:0 0 6px; font-size:16px; }
-    .tcard p  { margin:0; color:#cfe1ee; }
-
-    footer { color:#9fb3c8; font-size:13px; text-align:center; padding:20px 16px 28px; }
-
-    /* Spausdinimui – slepiame valdiklius/klausimus, paliekame rezultatus */
+    /* Spausdinimui – šviesus fonas ir juodas tekstas */
     @media print {
-      body { background:#fff; color:#000; }
-      header, .no-print, .actions, #items { display:none !important; }
-      #results, #results * { color:#000 !important; background:#fff !important; border-color:#000 !important; }
-      a { color:#000; text-decoration:none; }
-      .card { page-break-inside: avoid; }
+      :root{--bg:#ffffff;--fg:#000000;--panel:#ffffff;--line:#e5e7eb}
+      body{background:#fff;color:#000}
+      .topbar{position:static;background:#fff;border-bottom:1px solid #e5e7eb}
+      button, .btn, .actions a{display:none!important}
+      .item{background:#fff;border-color:#e5e7eb}
+      .kudos{color:#555}
+      .progress{display:none}
+      a[href]:after{content:" (" attr(href) ")"; font-size:11px}
     }
   </style>
 </head>
-
 <body>
-<header>
-  <h1>Divirgent Test V2.1 – OCEAN (LT)</h1>
-  <p class="no-print">~8–10 min · 60 teiginių · be prisijungimo · skaičiuojama naršyklėje</p>
-
-  <div id="globalError" class="hidden"></div>
-
-  <div class="actions no-print">
-    <button id="btnStart">Pereiti prie teiginių</button>
-    <button id="btnReset" class="secondary">Išvalyti</button>
+  <!-- Viršus: sticky navigacija ir veiksmai -->
+  <div class="topbar">
+    <div class="wrap">
+      <div class="flex">
+        <div><strong>Divirgent Test V2.1 – OCEAN (LT)</strong></div>
+        <span class="inline-note"> ~8–10 min · 60 teiginių · be prisijungimo · skaičiuojama naršyklėje</span>
+        <span class="right inline-note">PDF: naudok naršyklės „Išsaugoti kaip PDF“</span>
+      </div>
+      <div class="actions">
+        #teiginiaiPereiti prie teiginių</a>
+        <button id="calcBtn" type="button">Gauti rezultatą</button>
+        <button id="clearBtn" type="button">Išvalyti</button>
+      </div>
+    </div>
   </div>
-</header>
 
-<main>
-  <!-- TEIGINIAI -->
-  <section id="items" class="card">
-    <h2>Teiginiai</h2>
-    <p>Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. Invertuoti teiginiai skaičiuojami priešingai.</p>
+  <!-- Įžanga -->
+  <main class="wrap" id="intro">
+    <h1>Divirgent Test V2.1 – OCEAN (LT)</h1>
+    <p class="muted">Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. Invertuoti teiginiai skaičiuojami priešingai.</p>
+    <noscript><p style="color:#ef4444"><strong>Šiam testui reikia JavaScript.</strong> Įjunkite JavaScript naršyklėje.</p></noscript>
+  </main>
 
-    <div id="itemsContainer" class="no-print"></div>
-
-    <div class="actions center no-print">
-      <button id="btnSubmit">Gauti rezultatą</button>
-    </div>
+  <!-- Teiginiai (dinamiškai sugeneruojami) -->
+  <section class="wrap" id="teiginiai" aria-labelledby="hdr-teiginiai">
+    <h2 id="hdr-teiginiai">Teiginiai</h2>
+    <div id="itemsHost" class="grid" role="group" aria-describedby="likertHelp"></div>
+    <p id="likertHelp" class="sr-only">Kiekvienam teiginiui pasirinkite atsakymą skalėje nuo 1 iki 5.</p>
   </section>
 
-  <!-- REZULTATAI -->
-  <section id="results" class="card">
-    <h2>Rezultatai</h2>
-    <p id="summary">Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.</p>
+  <!-- Rezultatai -->
+  <section class="wrap" id="results" aria-labelledby="hdr-rezultatai">
+    <h2 id="hdr-rezultatai">Rezultatai</h2>
+    <p id="fillAllNote" class="muted">Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.</p>
 
-    <!-- Lentelė -->
-    <table id="tblScores" class="hidden">
-      <thead>
-        <tr>
-          <th>Domenas</th>
-          <th>Vidurkis (1–5)</th>
-          <th>Normalizuota (–1…+1)</th>
-          <th>%</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="grid">
+      <div class="card">
+        <h3>Lentelė</h3>
+        <div class="progress" title="Bendras užpildymo progresas">
+          <div class="bar" id="progressBar" style="width:0%"></div>
+        </div>
+        <table id="resTable">
+          <thead>
+            <tr>
+              <th>Domenas</th>
+              <th>Vidurkis (1–5)</th>
+              <th>Normalizuota (–1…+1)</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-    <!-- Nauja: TOP‑3 pagal OCEAN (stiprybės) -->
-    <h3 id="oStrengthHdr" class="hidden">TOP‑3 stiprybės (OCEAN)</h3>
-    <ul id="oStrengthList" class="list hidden"></ul>
-
-    <!-- Nauja: TOP‑3 augimo sritys su rekomendacijomis -->
-    <h3 id="oGrowthHdr" class="hidden">TOP‑3 augimo sritys (su rekomendacijomis)</h3>
-    <ul id="oGrowthList" class="list hidden"></ul>
-
-    <!-- TOP‑3 tipai kaip anksčiau -->
-    <h3 id="typesHdr" class="hidden">Tipų artimumas (TOP‑3)</h3>
-    <div id="typeCards" class="grid-cards hidden"></div>
-
-    <div class="actions no-print hidden" id="printActions">
-      <button id="btnPrint">Spausdinti PDF</button>
-      <span style="color:#9fb3c8;font-size:12px">Naudokite naršyklės dialogą „Išsaugoti kaip PDF“.</span>
+      <div class="card">
+        <h3>TOP‑3 stiprybės (OCEAN)</h3>
+        <div id="strengths"></div>
+        <h3>TOP‑3 augimo sritys</h3>
+        <div id="growth"></div>
+        <h3>Tipų artimumas (TOP‑3)</h3>
+        <div id="typesTop"></div>
+      </div>
     </div>
+
+    <div class="kudos">© 2025 Divirgent Test · Vieno failo versija (index.html)</div>
   </section>
-</main>
 
-<footer class="no-print">
-  © 2025 Divirgent Test · Vieno failo versija (index.html)
-</footer>
+  <!-- ===========================
+       JavaScript logika
+       =========================== -->
+  <script>
+  /* ====== 1) Modelis: domenai, teiginiai, tipai, rekomendacijos ====== */
+  const DOMAINS = {
+    O: { name: "Atvirumas (O)", color: "O" },
+    C: { name: "Pareigingumas (C)", color: "C" },
+    E: { name: "Ekstravertiškumas (E)", color: "E" },
+    A: { name: "Sutariamumas (A)", color: "A" },
+    N: { name: "Neurotiškumas (N)", color: "N" }
+  };
 
-<!-- 1) Inline JSON – 60 unikalių teiginių + centroidai tipams -->
-<script type="application/json" id="itemsData">
-{
-  "name": "Divirgent Test V2.1 (LT)",
-  "likert": ["Visiškai nesutinku","Nesutinku","Nei taip, nei ne","Sutinku","Visiškai sutinku"],
-  "items_full": [
-    {"id":"E1","domain":"Ekstraversija","reverse":false,"text":"Mėgstu bendrauti su nepažįstamais žmonėmis."},
-    {"id":"E2","domain":"Ekstraversija","reverse":true,"text":"Mieliau renkuosi laiką vienumoje."},
-    {"id":"E3","domain":"Ekstraversija","reverse":false,"text":"Greitai pradedu pokalbį naujoje grupėje."},
-    {"id":"E4","domain":"Ekstraversija","reverse":true,"text":"Dideli susibūrimai mane vargina."},
-    {"id":"E5","domain":"Ekstraversija","reverse":false,"text":"Jaučiu energijos pakilimą būdamas tarp žmonių."},
-    {"id":"E6","domain":"Ekstraversija","reverse":true,"text":"Vengiu būti dėmesio centre."},
-    {"id":"E7","domain":"Ekstraversija","reverse":false,"text":"Greitai perimu iniciatyvą grupėje."},
-    {"id":"E8","domain":"Ekstraversija","reverse":true,"text":"Nesijaučiu patogiai, kai reikia kalbėti prieš auditoriją."},
-    {"id":"E9","domain":"Ekstraversija","reverse":false,"text":"Lengvai mezgu naujas pažintis."},
-    {"id":"E10","domain":"Ekstraversija","reverse":true,"text":"Retai imuosi kalbėti pirmas/pirma."},
-    {"id":"E11","domain":"Ekstraversija","reverse":false,"text":"Entuziastingai dalyvauju renginiuose."},
-    {"id":"E12","domain":"Ekstraversija","reverse":true,"text":"Po socialinių veiklų ilgai atgaunu jėgas."},
+  /* 60 teiginių (12×5). invert: true reiškia atvirkštinis skaičiavimas. */
+  const ITEMS = [
+    /* O: Atvirumas (12) */
+    {id:"O1", d:"O", t:"Mėgstu tyrinėti naujas idėjas ir koncepcijas.", invert:false},
+    {id:"O2", d:"O", t:"Dažnai svajoju ir įsivaizduoju galimus scenarijus.", invert:false},
+    {id:"O3", d:"O", t:"Mėgstu meno, muzikos ar literatūros įvairovę.", invert:false},
+    {id:"O4", d:"O", t:"Rutina man teikia daugiau saugumo nei naujovės.", invert:true},
+    {id:"O5", d:"O", t:"Greitai perprantu abstrakčias idėjas.", invert:false},
+    {id:"O6", d:"O", t:"Vengiu netikrumo ir neapibrėžtumo.", invert:true},
+    {id:"O7", d:"O", t:"Smalsiai bandau naujus metodus ar įrankius.", invert:false},
+    {id:"O8", d:"O", t:"Man labiau patinka pažįstami maršrutai ir vietos.", invert:true},
+    {id:"O9", d:"O", t:"Lengvai prisitaikau prie pokyčių.", invert:false},
+    {id:"O10", d:"O", t:"Nejaučiu poreikio mokytis dalykų už mano srities ribų.", invert:true},
+    {id:"O11", d:"O", t:"Kūrybinės užduotys mane įkvepia.", invert:false},
+    {id:"O12", d:"O", t:"Nedžiugina nauji skoniai, žanrai ar stiliai.", invert:true},
 
-    {"id":"A1","domain":"Malonumas","reverse":false,"text":"Empatiškai reaguoju į kitų jausmus."},
-    {"id":"A2","domain":"Malonumas","reverse":true,"text":"Dažnai ginčijuosi dėl smulkmenų."},
-    {"id":"A3","domain":"Malonumas","reverse":false,"text":"Lengvai atleidžiu klaidas."},
-    {"id":"A4","domain":"Malonumas","reverse":true,"text":"Esu šaltas ir abejingas kitų poreikiams."},
-    {"id":"A5","domain":"Malonumas","reverse":false,"text":"Gerbiu skirtingus požiūrius."},
-    {"id":"A6","domain":"Malonumas","reverse":true,"text":"Įtariai vertinu kitų ketinimus."},
-    {"id":"A7","domain":"Malonumas","reverse":false,"text":"Pastebiu, kai žmogui reikia palaikymo."},
-    {"id":"A8","domain":"Malonumas","reverse":true,"text":"Dažnai kalbu kandžiai ar sarkastiškai."},
-    {"id":"A9","domain":"Malonumas","reverse":false,"text":"Sąžiningai dalinuosi nuopelnais su komanda."},
-    {"id":"A10","domain":"Malonumas","reverse":true,"text":"Greitai teisiu žmones griežčiau nei reikėtų."},
-    {"id":"A11","domain":"Malonumas","reverse":false,"text":"Mėgstu ieškoti abiem pusėms tinkamo kompromiso."},
-    {"id":"A12","domain":"Malonumas","reverse":true,"text":"Man sunku parodyti šilumą ir rūpestį."},
+    /* C: Pareigingumas (12) */
+    {id:"C1", d:"C", t:"Tvarką ir planą laikau svarbiais kasdien.", invert:false},
+    {id:"C2", d:"C", t:"Dažnai atidėlioju svarbias užduotis.", invert:true},
+    {id:"C3", d:"C", t:"Laikausi terminų ir įsipareigojimų.", invert:false},
+    {id:"C4", d:"C", t:"Mano darbo vieta dažniausiai netvarkinga.", invert:true},
+    {id:"C5", d:"C", t:"Dirbu nuosekliai ir sistemiškai.", invert:false},
+    {id:"C6", d:"C", t:"Smulkmenos man neretai „praslysta pro akis“.", invert:true},
+    {id:"C7", d:"C", t:"Užbaigiu tai, ką pradedu.", invert:false},
+    {id:"C8", d:"C", t:"Mėgstu veikti spontaniškai, be plano.", invert:true},
+    {id:"C9", d:"C", t:"Lengvai laikau prioritetus esant dideliam krūviui.", invert:false},
+    {id:"C10", d:"C", t:"Dažnai pametu gijas arba praleidžiu svarbią smulkmeną.", invert:true},
+    {id:"C11", d:"C", t:"Esu patikimas(-a) ir atsakingas(-a).", invert:false},
+    {id:"C12", d:"C", t:"Taisyklės dažniausiai trukdo ir jas apeinu.", invert:true},
 
-    {"id":"C1","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Laikausi tvarkaraščių ir terminų."},
-    {"id":"C2","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Dažnai atidėlioju pradėti užduotis."},
-    {"id":"C3","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Kruopščiai planuoju darbus."},
-    {"id":"C4","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Lengvai numetu pradėtą darbą dėl nuobodulio."},
-    {"id":"C5","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Atlieku darbus iki galo."},
-    {"id":"C6","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Dažnai pritrūksta dėmesio detalėms."},
-    {"id":"C7","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Mano darbo vieta paprastai tvarkinga."},
-    {"id":"C8","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Pradedu darbus jų neapgalvojęs/usi."},
-    {"id":"C9","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Nuosekliai siekiu užsibrėžtų tikslų."},
-    {"id":"C10","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Greitai prarandu motyvaciją ilguose projektuose."},
-    {"id":"C11","domain":"Sąžiningumas/Atidumas","reverse":false,"text":"Jaučiu asmeninę atsakomybę už įsipareigojimus."},
-    {"id":"C12","domain":"Sąžiningumas/Atidumas","reverse":true,"text":"Esu išsiblaškęs ir neorganizuotas."},
+    /* E: Ekstravertiškumas (12) */
+    {id:"E1", d:"E", t:"Pradėti pokalbį su nepažįstamais man lengva.", invert:false},
+    {id:"E2", d:"E", t:"Didelės žmonių grupės mane vargina.", invert:true},
+    {id:"E3", d:"E", t:"Mėgstu būti dėmesio centre.", invert:false},
+    {id:"E4", d:"E", t:"Greičiau renkuosi vienatvę, nei šurmulį.", invert:true},
+    {id:"E5", d:"E", t:"Esu energingas(-a) ir gyvas(-a) bendraujant.", invert:false},
+    {id:"E6", d:"E", t:"Esu santūrus(-i) ir mažai kalbus(-i).", invert:true},
+    {id:"E7", d:"E", t:"Greitai užmezgu ryšį su žmonėmis.", invert:false},
+    {id:"E8", d:"E", t:"Retai imuosi iniciatyvos socialinėse situacijose.", invert:true},
+    {id:"E9", d:"E", t:"Man patinka komandinės veiklos ir renginiai.", invert:false},
+    {id:"E10", d:"E", t:"Dažniau stebiu, nei įsitraukiu.", invert:true},
+    {id:"E11", d:"E", t:"Balsas ir kūno kalba pas mane ryški.", invert:false},
+    {id:"E12", d:"E", t:"Vengiu skambučių ar spontaniškų susitikimų.", invert:true},
 
-    {"id":"N1","domain":"Neurotiškumas","reverse":false,"text":"Lengvai nerimauju dėl ateities."},
-    {"id":"N2","domain":"Neurotiškumas","reverse":true,"text":"Išlaikau ramybę spaudžiant terminams."},
-    {"id":"N3","domain":"Neurotiškumas","reverse":false,"text":"Mano nuotaika dažnai svyruoja."},
-    {"id":"N4","domain":"Neurotiškumas","reverse":true,"text":"Gerai valdau stresą sudėtingose situacijose."},
-    {"id":"N5","domain":"Neurotiškumas","reverse":false,"text":"Greitai susierzinu dėl smulkmenų."},
-    {"id":"N6","domain":"Neurotiškumas","reverse":true,"text":"Esu emociškai stabilus ir atsparus."},
-    {"id":"N7","domain":"Neurotiškumas","reverse":false,"text":"Kartais jaučiu nerimą be aiškios priežasties."},
-    {"id":"N8","domain":"Neurotiškumas","reverse":true,"text":"Net kritikuojamas/-a išlaikau pusiausvyrą."},
-    {"id":"N9","domain":"Neurotiškumas","reverse":false,"text":"Lengvai pasiduodu liūdnoms mintims."},
-    {"id":"N10","domain":"Neurotiškumas","reverse":true,"text":"Greitai atgaunu vidinę pusiausvyrą po nesėkmės."},
-    {"id":"N11","domain":"Neurotiškumas","reverse":false,"text":"Įtampa mane užklumpa net menkniekiuose."},
-    {"id":"N12","domain":"Neurotiškumas","reverse":true,"text":"Netikėtose situacijose išlieku ramus/-i."},
+    /* A: Sutariamumas (12) */
+    {id:"A1", d:"A", t:"Lengvai įsijaučiu į kitų žmonių jausmus.", invert:false},
+    {id:"A2", d:"A", t:"Dažnai ginčijuosi dėl principų.", invert:true},
+    {id:"A3", d:"A", t:"Stengiuosi bendradarbiauti ir ieškoti win‑win.", invert:false},
+    {id:"A4", d:"A", t:"Esu tiesmukas(-a) net kai tai žeidžia.", invert:true},
+    {id:"A5", d:"A", t:"Lengvai atleidžiu ir judu toliau.", invert:false},
+    {id:"A6", d:"A", t:"Kitų ketinimus vertinu su nepasitikėjimu.", invert:true},
+    {id:"A7", d:"A", t:"Man svarbu kurti gerą atmosferą komandoje.", invert:false},
+    {id:"A8", d:"A", t:"Kritiką reiškiu griežtai, be užuolankų.", invert:true},
+    {id:"A9", d:"A", t:"Lengvai nusileidžiu smulkmenose dėl bendro tikslo.", invert:false},
+    {id:"A10", d:"A", t:"Dažnai pirma galvoju apie save, o ne apie kitus.", invert:true},
+    {id:"A11", d:"A", t:"Esu mandagus(-i) ir pagarbus(-i) net esant įtampai.", invert:false},
+    {id:"A12", d:"A", t:"Rungtyniauju labiau nei bendradarbiauju.", invert:true},
 
-    {"id":"O1","domain":"Atvirumas patirčiai","reverse":false,"text":"Mėgstu tyrinėti naujas idėjas."},
-    {"id":"O2","domain":"Atvirumas patirčiai","reverse":true,"text":"Rinkiuosi tik įprastas, patikrintas veiklas."},
-    {"id":"O3","domain":"Atvirumas patirčiai","reverse":false,"text":"Domiuosi menu, muzika ar literatūra."},
-    {"id":"O4","domain":"Atvirumas patirčiai","reverse":true,"text":"Vengiu abstrakčių ar teorinių temų."},
-    {"id":"O5","domain":"Atvirumas patirčiai","reverse":false,"text":"Sugalvoju naujų būdų pagerinti esamus dalykus."},
-    {"id":"O6","domain":"Atvirumas patirčiai","reverse":true,"text":"Mieliau lieku prie tradicinių sprendimų."},
-    {"id":"O7","domain":"Atvirumas patirčiai","reverse":false,"text":"Smalsiai gilin(u)osi į sudėtingas temas."},
-    {"id":"O8","domain":"Atvirumas patirčiai","reverse":true,"text":"Vengiu naujų metodų ar technologijų."},
-    {"id":"O9","domain":"Atvirumas patirčiai","reverse":false,"text":"Idėjas dažnai vizualizuoju vaizdais ar metaforomis."},
-    {"id":"O10","domain":"Atvirumas patirčiai","reverse":true,"text":"Retai užduodu klausimą „o jeigu…?“."},
-    {"id":"O11","domain":"Atvirumas patirčiai","reverse":false,"text":"Mėgstu kurti – nuo sprendimų iki dizaino."},
-    {"id":"O12","domain":"Atvirumas patirčiai","reverse":true,"text":"Nelaikau savęs kūrybišku žmogumi."}
-  ],
-  "type_centroids": {
-    "Dirigentė":   {"E":0.8,"A":0.2,"C":0.8,"ES":0.6,"O":0.2},
-    "Analitikas":  {"E":-0.6,"A":0.0,"C":0.4,"ES":0.6,"O":0.8},
-    "Diplomatė":   {"E":0.2,"A":0.8,"C":0.2,"ES":0.6,"O":0.2},
-    "Inovatorė":   {"E":0.6,"A":-0.2,"C":-0.1,"ES":0.3,"O":0.9},
-    "Stabilizuotoja":{"E":-0.4,"A":0.6,"C":0.8,"ES":0.8,"O":-0.4},
-    "Mentorius":   {"E":0.2,"A":0.8,"C":0.7,"ES":0.7,"O":0.3},
-    "Variklis":    {"E":0.9,"A":-0.1,"C":0.6,"ES":0.3,"O":0.7},
-    "Architektė":  {"E":-0.5,"A":-0.3,"C":0.7,"ES":0.7,"O":0.9}
+    /* N: Neurotiškumas (12) */
+    {id:"N1", d:"N", t:"Lengvai imu nerimauti dėl įvairių dalykų.", invert:false},
+    {id:"N2", d:"N", t:"Išlaikau ramybę netikėtose situacijose.", invert:true},
+    {id:"N3", d:"N", t:"Stresas mane greitai išmuša iš vėžių.", invert:false},
+    {id:"N4", d:"N", t:"Retai pergyvenu dėl klaidų.", invert:true},
+    {id:"N5", d:"N", t:"Emocijos svyruoja dažniau nei norėčiau.", invert:false},
+    {id:"N6", d:"N", t:"Kritiką priimu be didelio sukrėtimo.", invert:true},
+    {id:"N7", d:"N", t:"Kartais sunku atsipalaiduoti.", invert:false},
+    {id:"N8", d:"N", t:"Miegas ir apetitas beveik visada stabilūs.", invert:true},
+    {id:"N9", d:"N", t:"Dažnai „pergalvoju“ praeitus įvykius.", invert:false},
+    {id:"N10", d:"N", t:"Retai jaučiu įtampą ar nerimą.", invert:true},
+    {id:"N11", d:"N", t:"Staigūs pokyčiai mane įaudrina.", invert:false},
+    {id:"N12", d:"N", t:"Išlieku stabilus(-i), kai kiti jaudinasi.", invert:true}
+  ];
+
+  /* Tipų vektoriai (O,C,E,A,N) normalizuotoje skalėje –1..+1 */
+  const TYPES = [
+    { name:"Dirigentė",  v:{O: 0.3, C: 0.7, E: 0.5, A:-0.1, N:-0.4} },
+    { name:"Strategas",   v:{O: 0.6, C: 0.8, E: 0.0, A: 0.2, N:-0.3} },
+    { name:"Tyrinėtojas", v:{O: 0.9, C: 0.1, E: 0.1, A: 0.2, N: 0.0} },
+    { name:"Diplomatas",  v:{O: 0.4, C: 0.5, E: 0.2, A: 0.8, N:-0.2} },
+    { name:"Iniciatorius",v:{O: 0.5, C: 0.4, E: 0.8, A: 0.1, N: 0.1} },
+    { name:"Analitikas",  v:{O: 0.7, C: 0.7, E:-0.2, A: 0.0, N:-0.2} },
+    { name:"Rėmėjas",     v:{O: 0.2, C: 0.6, E: 0.3, A: 0.9, N:-0.4} },
+    { name:"Novatorius",  v:{O: 0.8, C: 0.3, E: 0.5, A:-0.1, N: 0.0} }
+  ];
+
+  const RECS = {
+    O: [
+      "Kiekvieną savaitę išbandyk 1 naują metodą/įrankį ir užrašyk 3 įžvalgas.",
+      "Planuok 2 val. „mokymosi langą“ – kursas, straipsniai, praktika.",
+      "Peržiūrėk 1 procesą ir pasiūlyk mažą eksperimentą (A/B)."
+    ],
+    C: [
+      "Naudok 2‑min taisyklę: jei užduotis <2 min – atlik dabar.",
+      "Dienos TOP‑3: ryte užrašyk 3 svarbiausias užduotis ir pažymėk terminus.",
+      "Savaitinis „uždarymo“ ritualas: sutvarkyk sąrašus, stalčių, kalendorių."
+    ],
+    E: [
+      "Kiekvieną dieną pradėk 1 trumpą pokalbį (👋, klausimas, padėka).",
+      "Kartą per savaitę vesk mini‑susitikimą arba pasidalink įžvalga komandoje.",
+      "Praktikuok „atvirą pozą“: akis‑akis, nugarą tiesiai, aiškus balsas."
+    ],
+    A: [
+      "Įdiek „veidrodžio“ principą: pirmiausia perfrazuok, ką išgirdai.",
+      "Konfliktuose ieškok 1 bendro intereso ir 1 mažo kompromiso.",
+      "Duok 1 nuoširdų komplimentą ar padėką kasdien."
+    ],
+    N: [
+      "3‑3‑3 nerimo pratimas: 3 dalykai matomi, 3 girdimi, 3 jaučiami.",
+      "Įsivesk „buferį“: 10 min. tarp susitikimų kvėpavimui ar pasivaikščiojimui.",
+      "Vakare surašyk 3 tikslus rytdienai – mažina galvos „sukimą“."
+    ]
+  };
+
+  /* ====== 2) Pagalbinės ====== */
+  const by = (sel, root=document) => root.querySelector(sel);
+  const el = (tag, attrs={}, ...children) => {
+    const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs)){
+      if (k === "class") n.className = v;
+      else if (k === "html") n.innerHTML = v;
+      else if (k.startsWith("on")) n.addEventListener(k.substring(2), v);
+      else n.setAttribute(k, v);
+    }
+    for (const c of children){
+      if (typeof c === "string") n.appendChild(document.createTextNode(c));
+      else if (c) n.appendChild(c);
+    }
+    return n;
+  };
+
+  function normFromAvg(avg15){ return (avg15 - 3) / 2; }        // -> [-1..+1]
+  function pctFromAvg(avg15){ return ((avg15 - 1) / 4) * 100; } // -> [0..100]
+  function fmt(n, d=2){ return Number(n).toFixed(d); }
+  function mean(arr){ return arr.reduce((a,b)=>a+b,0) / (arr.length||1); }
+
+  function cosineSim(a, b){
+    const ks = ["O","C","E","A","N"];
+    let dot=0, na=0, nb=0;
+    for (const k of ks){ dot += a[k]*b[k]; na += a[k]*a[k]; nb += b[k]*b[k]; }
+    return (na===0 || nb===0) ? 0 : dot / Math.sqrt(na*nb);
   }
-}
-</script>
 
-<!-- 2) Visa logika inline – be fetch, be bibliotekų -->
-<script>
-(() => {
-  'use strict';
+  /* ====== 3) UI generavimas ====== */
+  function renderItems(){
+    const host = by("#itemsHost");
+    host.innerHTML = "";
+    const groups = {O:[],C:[],E:[],A:[],N:[]};
+    for (const it of ITEMS) groups[it.d].push(it);
 
-  // ---- DOM
-  const el = {
-    btnStart: document.getElementById('btnStart'),
-    btnSubmit: document.getElementById('btnSubmit'),
-    btnReset: document.getElementById('btnReset'),
-
-    itemsWrap: document.getElementById('itemsContainer'),
-    itemsSection: document.getElementById('items'),
-
-    tbl: document.getElementById('tblScores'),
-    tblBody: document.querySelector('#tblScores tbody'),
-
-    summary: document.getElementById('summary'),
-    globalErr: document.getElementById('globalError'),
-    results: document.getElementById('results'),
-    printActions: document.getElementById('printActions'),
-
-    oStrengthHdr: document.getElementById('oStrengthHdr'),
-    oStrengthList: document.getElementById('oStrengthList'),
-    oGrowthHdr: document.getElementById('oGrowthHdr'),
-    oGrowthList: document.getElementById('oGrowthList'),
-
-    typesHdr: document.getElementById('typesHdr'),
-    typeCards: document.getElementById('typeCards')
-  };
-
-  // ---- Būsena
-  let META = null;
-  let ITEMS = [];
-
-  // ---- Žodynai
-  const DOMAIN_LABELS = {
-    E: 'Ekstraversija', A: 'Malonumas', C: 'Sąžiningumas/Atidumas', ES: 'Emocinis stabilumas', O: 'Atvirumas patirčiai'
-  };
-  const DOMAIN_DESCR = {
-    E: 'Energija, iniciatyva ir socialinis aktyvumas.',
-    A: 'Empatija, pagarba ir bendradarbiavimas.',
-    C: 'Tvarka, atsakomybė ir nuoseklus siekis.',
-    ES:'Ramybė, streso valdymas ir emocinė pusiausvyra.',
-    O: 'Smalsumas, naujos idėjos ir kūrybiškumas.'
-  };
-  const DOMAIN_TIPS = {
-    E: ['Planuok 1–2 socialinius „mini‑išėjimus“ per savaitę.', 'Kartą per mėnesį – viešas pasisakymas/ataskaita komandoje.', 'Treniruok iniciatyvą: pirmas(-a) užduok 1 klausimą susitikime.'],
-    A: ['Kasdien sąmoningai padėkok 1 žmogui už konkretų veiksmą.', 'Konfliktuose naudok „Aš‑žinutes“ vietoj „Tu‑kaltini“.', 'Skirk 15 min. empatiniam klausymui be pertraukimų.'],
-    C: ['Darbų valdymas: „Top‑3“ prioritetai kiekvienos dienos pradžioje.', 'Laiko dėžutės (time‑boxing): 25–50 min. blokai be trikdžių.', '„Uždarymo ritualas“: 10 min. tvarka darbo pabaigoje.'],
-    ES:['2–3 kartus per dieną 2 min. kvėpavimo ciklas (4‑4‑6).', '„Streso žurnalas“: trigeris → reakcija → alternatyvi interpretacija.', 'Planas „B“ kritinėms situacijoms – 3 konkretūs žingsniai.'],
-    O: ['Kas savaitę – 1 naujas šaltinis (straipsnis, podcast).', 'Idėjų „3x“: kiekvienai problemai – 3 alternatyvos.', 'Įtrauk „mini prototipą“ prieš ilgą įgyvendinimą.']
-  };
-  const TYPE_DESCR = {
-    'Dirigentė':'Kryptis, standartai, sprendimų tempas; rizika – perkontrolė.',
-    'Analitikas':'Duomenys, logika, sisteminis mąstymas; rizika – peranalizavimas.',
-    'Diplomatė':'Santykiai, kompromisai, empatija; rizika – konfliktų vengimas.',
-    'Inovatorė':'Naujovės, eksperimentai, galimybių matymas; rizika – neužbaigtumas.',
-    'Stabilizuotoja':'Nuoseklumas, procesai, kokybė; rizika – pasipriešinimas pokyčiams.',
-    'Mentorius':'Ugdymas, grįžtamasis ryšys; rizika – per didelė globa.',
-    'Variklis':'Aktyvacija, energija, rezultatas; rizika – per didelis spaudimas.',
-    'Architektė':'Struktūra, dizainas, ilgalaikė logika; rizika – teorinis šaltumas.'
-  };
-
-  // ---- Pagalbinės
-  const scrollTo = (node) => node?.scrollIntoView({ behavior:'smooth', block:'start' });
-  const normMinus1to1 = (mean15) => ((mean15 - 3) / 2);
-  const pct0to100     = (mean15) => Math.round(((mean15 - 1) / 4) * 100);
-
-  const showError = (msg) => { if (!el.globalErr) { console.error(msg); return; } el.globalErr.textContent = msg; el.globalErr.classList.remove('hidden'); };
-  const clearError = () => { if (!el.globalErr) return; el.globalErr.textContent=''; el.globalErr.classList.add('hidden'); };
-
-  const isReversed = (item) => item?.reverse === true;
-
-  const byDomain = (arr) => {
-    const map = new Map();
-    for (const r of arr) { if (!map.has(r.domain)) map.set(r.domain, []); map.get(r.domain).push(r.value); }
-    const out = {};
-    for (const [k, vals] of map.entries()) out[k] = { mean: vals.reduce((a,b)=>a+b,0)/vals.length, n: vals.length };
-    return out;
-  };
-
-  // N -> ES (emocinis stabilumas) vektoriui/rikiavimui
-  const toVec = (scores) => {
-    const E = normMinus1to1(scores['Ekstraversija'].mean);
-    const A = normMinus1to1(scores['Malonumas'].mean);
-    const C = normMinus1to1(scores['Sąžiningumas/Atidumas'].mean);
-    const N = normMinus1to1(scores['Neurotiškumas'].mean);
-    const ES = -N; // kuo mažiau N, tuo daugiau ES
-    const O = normMinus1to1(scores['Atvirumas patirčiai'].mean);
-    return {E,A,C,ES,O};
-  };
-
-  const euclid = (p, q) => {
-    const keys = ['E','A','C','ES','O'];
-    return Math.sqrt(keys.reduce((s,k)=> s + Math.pow((p[k]??0)-(q[k]??0),2), 0));
-  };
-  const top3Types = (vec, centroids) => {
-    if (!centroids) return [];
-    const arr = Object.entries(centroids).map(([name,c])=>{
-      const d = euclid(vec,c);
-      const sim = 1/(1+d);
-      return {name, dist:d, sim};
-    }).sort((a,b)=>a.dist-b.dist).slice(0,3);
-    return arr;
-  };
-
-  // ---- Forma
-  const renderForm = () => {
-    const likert = META?.likert ?? ["Visiškai nesutinku","Nesutinku","Nei taip, nei ne","Sutinku","Visiškai sutinku"];
-    const frag = document.createDocumentFragment();
-    ITEMS.forEach((it, idx) => {
-      const row = document.createElement('div'); row.className = 'item';
-      const inv = isReversed(it);
-      const tag = document.createElement('h4');
-      tag.innerHTML = `${idx+1}. ${it.text} <span class="domain-tag">(${it.domain}${inv ? ', invertuotas' : ''})</span>`;
-      row.appendChild(tag);
-
-      const scale = document.createElement('div'); scale.className = 'scale';
-      for (let v=1; v<=5; v++){
-        const id = `${it.id}_${v}`;
-        const label = document.createElement('label');
-        const input = document.createElement('input');
-        input.type = 'radio'; input.name = it.id; input.id = id; input.value = String(v); input.required = true;
-        const txt = document.createElement('span'); txt.textContent = `${v} – ${likert[v-1]}`;
-        label.htmlFor = id; label.appendChild(input); label.appendChild(txt);
-        scale.appendChild(label);
+    for (const code of ["O","C","E","A","N"]){
+      const card = el("div",{class:"card"});
+      card.appendChild(el("h3",{},
+        el("span",{class:`domain-tag ${code}`}, code), " ", DOMAINS[code].name
+      ));
+      for (const it of groups[code]){
+        const itemNode = el("div",{class:"item", id:`item-${it.id}`},
+          el("div",{}, el("span",{class:"pill"}, it.id), " ", it.t, " ",
+            it.invert ? el("span",{class:"inline-note"},"(invertuotas)") : null
+          ),
+          renderLikert(it.id)
+        );
+        card.appendChild(itemNode);
       }
-      row.appendChild(scale);
-      frag.appendChild(row);
-    });
-    el.itemsWrap.innerHTML = '';
-    el.itemsWrap.appendChild(frag);
-  };
-
-  const readResponses = () => {
-    const out = [];
-    for (const it of ITEMS){
-      const sel = document.querySelector(`input[name="${it.id}"]:checked`);
-      if (!sel) return { ok:false, missing: it.id };
-      const raw = Number(sel.value);
-      const val = isReversed(it) ? (6 - raw) : raw;
-      out.push({ id:it.id, domain:it.domain, raw, value:val });
+      host.appendChild(card);
     }
-    return { ok:true, rows: out };
-  };
+  }
 
-  const renderScores = (scores) => {
-    // 1) Lentelė
-    el.tblBody.innerHTML = '';
-    const order = ['Ekstraversija','Malonumas','Sąžiningumas/Atidumas','Neurotiškumas','Atvirumas patirčiai'];
-    for (const key of order){
-      const s = scores[key];
-      const norm = normMinus1to1(s.mean);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${key}</td>
-        <td>${s.mean.toFixed(2)}</td>
-        <td>${norm >= 0 ? '+' : ''}${norm.toFixed(2)}</td>
-        <td>${pct0to100(s.mean)}%</td>
-      `;
-      el.tblBody.appendChild(tr);
-    }
-    el.tbl.classList.remove('hidden');
-  };
-
-  const renderOCEANTop3 = (scores) => {
-    // Konvertuojame į E,A,C,ES,O (ES = 6-N vidurkis -> vėliau paverčiame į %)
-    const means = {
-      E: scores['Ekstraversija'].mean,
-      A: scores['Malonumas'].mean,
-      C: scores['Sąžiningumas/Atidumas'].mean,
-      ES: 6 - scores['Neurotiškumas'].mean,
-      O: scores['Atvirumas patirčiai'].mean
+  function renderLikert(id){
+    const scale = el("div",{class:"scale", role:"radiogroup","aria-labelledby":id});
+    const labels = {
+      1:"Visiškai nesutinku", 2:"Nesutinku", 3:"Neutrali(-us)", 4:"Sutinku", 5:"Visiškai sutinku"
     };
-    const pairs = Object.entries(means).map(([k,m]) => ({k, label:DOMAIN_LABELS[k], pct: pct0to100(m)}));
-
-    // Stiprybės (nuo didžiausio %)
-    const strengths = [...pairs].sort((a,b)=> b.pct - a.pct).slice(0,3);
-    el.oStrengthList.innerHTML = '';
-    strengths.forEach(s=>{
-      const li = document.createElement('li'); li.className='pill';
-      li.innerHTML = `<strong>${s.label}</strong><span class="pct">${s.pct}%</span><span>— ${DOMAIN_DESCR[s.k]}</span>`;
-      el.oStrengthList.appendChild(li);
-    });
-    el.oStrengthHdr.classList.remove('hidden');
-    el.oStrengthList.classList.remove('hidden');
-
-    // Augimo sritys (nuo mažiausio %)
-    const growth = [...pairs].sort((a,b)=> a.pct - b.pct).slice(0,3);
-    el.oGrowthList.innerHTML = '';
-    growth.forEach(g=>{
-      const tips = DOMAIN_TIPS[g.k] || [];
-      const li = document.createElement('li'); li.className='pill';
-      const tipsHtml = tips.length ? `<ul style="margin:6px 0 0 14px;padding:0;">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>` : '';
-      li.innerHTML = `<div><strong>${g.label}</strong> <span class="pct">${g.pct}%</span><div style="margin-top:4px;color:#cfe1ee;">Rekomendacijos:${tipsHtml}</div></div>`;
-      el.oGrowthList.appendChild(li);
-    });
-    el.oGrowthHdr.classList.remove('hidden');
-    el.oGrowthList.classList.remove('hidden');
-
-    return { strengths, growth };
-  };
-
-  const renderTypesTop3 = (scores) => {
-    const vec = toVec(scores);
-    const top = top3Types(vec, META?.type_centroids);
-    if (!top.length) return;
-    el.typeCards.innerHTML = '';
-    top.forEach(t=>{
-      const card = document.createElement('div'); card.className='tcard';
-      card.innerHTML = `<h4>${t.name} <span style="color:#9adbd4">(${(t.sim*100).toFixed(0)}%)</span></h4>
-                        <p>${TYPE_DESCR[t.name] || 'Aprašymas ruošiama.'}</p>`;
-      el.typeCards.appendChild(card);
-    });
-    el.typesHdr.classList.remove('hidden');
-    el.typeCards.classList.remove('hidden');
-  };
-
-  const resetForm = () => {
-    document.querySelectorAll('#itemsContainer input[type="radio"]').forEach(i => i.checked = false);
-    el.tbl.classList.add('hidden');
-    el.tblBody.innerHTML = '';
-
-    [el.oStrengthHdr, el.oGrowthHdr, el.typesHdr].forEach(n=>n.classList.add('hidden'));
-    [el.oStrengthList, el.oGrowthList, el.typeCards].forEach(n=>{ n.classList.add('hidden'); n.innerHTML=''; });
-
-    el.summary.textContent = 'Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.';
-    el.printActions.classList.add('hidden');
-    clearError();
-    scrollTo(document.body);
-  };
-
-  const init = () => {
-    try {
-      const raw = document.getElementById('itemsData')?.textContent?.trim();
-      if (!raw) throw new Error('Nerasta inline JSON duomenų.');
-      META = JSON.parse(raw);
-
-      ITEMS = Array.isArray(META.items_full) ? META.items_full.slice() : [];
-      if (ITEMS.length !== 60) console.warn('[Divirgent] Įspėjimas: teiginių skaičius ≠ 60 (dabar:', ITEMS.length, ')');
-
-      renderForm();
-    } catch (e) {
-      console.error(e);
-      showError(`Klaida kraunant klausimus: ${e.message}. Patikrinkite inline JSON formatą.`);
+    for (let v=1; v<=5; v++){
+      const inputId = `${id}_${v}`;
+      const label = el("label",{},
+        el("input",{type:"radio", name:id, id:inputId, value:String(v), onChange:updateProgress, required:true}),
+        el("span",{}, String(v)),
+        el("span",{class:"inline-note"}, labels[v])
+      );
+      scale.appendChild(label);
     }
-  };
+    return scale;
+  }
 
-  // Įvykiai
-  el.btnStart?.addEventListener('click', () => scrollTo(el.itemsSection));
-  el.btnReset?.addEventListener('click', resetForm);
-  el.btnSubmit?.addEventListener('click', () => {
-    clearError();
-    const resp = readResponses();
-    if (!resp.ok){ showError(`Neatsakytas teiginys: ${resp.missing}. Užpildykite visus teiginius.`); return; }
+  /* ====== 4) Skaičiavimas ====== */
+  function collectAnswers(){
+    const answers = {};
+    for (const it of ITEMS){
+      const checked = document.querySelector(`input[name="${it.id}"]:checked`);
+      answers[it.id] = checked ? Number(checked.value) : null;
+    }
+    return answers;
+  }
 
-    const scores = byDomain(resp.rows);
-    renderScores(scores);                    // lentelė
-    renderOCEANTop3(scores);                 // TOP‑3 OCEAN (stiprybės + augimas)
-    renderTypesTop3(scores);                 // TOP‑3 tipai (kaip anksčiau)
+  function invertIfNeeded(value, invert){ return invert ? (value==null?null : 6 - value) : value; }
 
-    el.summary.textContent = 'Rezultatai sugeneruoti. Žemiau – OCEAN stiprybės/augimas ir tipų artimumas.';
-    el.printActions.classList.remove('hidden');
-    scrollTo(el.results);
-  });
-  document.getElementById('btnPrint')?.addEventListener('click', () => window.print());
+  function calcScores(){
+    const ans = collectAnswers();
+    const byDomain = {O:[], C:[], E:[], A:[], N:[]};
+    let totalAnswered = 0;
+    ITEMS.forEach(it=>{
+      const v = ans[it.id];
+      const use = invertIfNeeded(v, it.invert);
+      if (use!=null){ byDomain[it.d].push(use); totalAnswered++; }
+    });
+    const out = {};
+    for (const d of Object.keys(byDomain)){
+      const arr = byDomain[d];
+      const avg = arr.length ? mean(arr) : null;
+      const norm = (avg==null) ? null : normFromAvg(avg);
+      const pct = (avg==null) ? null : pctFromAvg(avg);
+      out[d] = {avg, norm, pct, count: arr.length};
+    }
+    return {scores: out, answered: totalAnswered, total: ITEMS.length};
+  }
 
-  // Startas
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-})();
-</script>
+  function renderResults(model){
+    const {scores} = model;
+
+    // Lentelė
+    const tbody = by("#resTable tbody");
+    tbody.innerHTML = "";
+    const order = ["O","C","E","A","N"];
+    for (const d of order){
+      const s = scores[d];
+      const tr = el("tr",{},
+        el("td",{}, el("span",{class:`domain-tag ${d}`}, d), " ", DOMAINS[d].name),
+        el("td",{class:"mono"}, s.avg==null ? "–" : fmt(s.avg,2)),
+        el("td",{class:"mono"}, s.norm==null? "–" : (s.norm>=0?"+":"") + fmt(s.norm,2)),
+        el("td",{class:"mono"}, s.pct==null ? "–" : fmt(s.pct,0) + "%")
+      );
+      tbody.appendChild(tr);
+    }
+
+    // TOP‑3 stiprybės ir augimo sritys
+    const arr = order.map(d => ({d, ...scores[d]})).filter(x=>x.pct!=null);
+    arr.sort((a,b)=>b.pct-a.pct);
+    const strengths = arr.slice(0,3);
+    const growth = arr.slice(-3).reverse();
+
+    const sBox = by("#strengths"); sBox.innerHTML = "";
+    strengths.forEach(x=>{
+      const n = el("div",{},
+        el("span",{class:`domain-tag ${x.d}`}, x.d),
+        " ", DOMAINS[x.d].name, " · ",
+        el("strong",{}, fmt(x.pct,0)+"%")
+      );
+      sBox.appendChild(n);
+    });
+
+    const gBox = by("#growth"); gBox.innerHTML = "";
+    growth.forEach(x=>{
+      const card = el("div",{class:`item ${x.pct<40?'danger': (x.pct<60?'': 'ok')}`},
+        el("div",{}, el("span",{class:`domain-tag ${x.d}`}, x.d), " ", DOMAINS[x.d].name, " · ",
+          el("strong",{}, fmt(x.pct,0)+"%")
+        ),
+        el("ul",{}, ...RECS[x.d].map(r => el("li",{}, r)))
+      );
+      gBox.appendChild(card);
+    });
+
+    // Tipų artimumas (kosinusinis panašumas)
+    const self = {};
+    for (const d of order){ self[d] = scores[d].norm ?? 0; }
+    const typed = TYPES.map(t => {
+      const sim = cosineSim(self, t.v);              // [-1..+1]
+      const pct = Math.round(((sim + 1)/2) * 100);   // 0..100
+      return {name:t.name, sim, pct};
+    }).sort((a,b)=>b.sim - a.sim).slice(0,3);
+
+    const tBox = by("#typesTop"); tBox.innerHTML = "";
+    typed.forEach(t=>{
+      tBox.appendChild(el("div",{}, el("span",{class:"pill"}, t.name), " · artimumas ",
+        el("strong",{}, t.pct+"%")
+      ));
+    });
+  }
+
+  /* ====== 5) Veiksmai / UX ====== */
+  function onCalculate(){
+    const model = calcScores();
+    if (model.answered < model.total){
+      const remain = model.total - model.answered;
+      by("#fillAllNote").textContent = `Užpildykite visus teiginius. Trūksta: ${remain}.`;
+      by("#fillAllNote").classList.remove("muted");
+      window.location.hash = "#teiginiai";
+      setTimeout(()=>window.scrollTo({top: by("#teiginiai").offsetTop - 60, behavior:"smooth"}), 50);
+      highlightMissing();
+      return;
+    }
+    by("#fillAllNote").textContent = "Rezultatai apskaičiuoti.";
+    by("#fillAllNote").classList.add("muted");
+    renderResults(model);
+    saveToStorage();
+    window.location.hash = "#results";
+    setTimeout(()=>window.scrollTo({top: by("#results").offsetTop - 60, behavior:"smooth"}), 50);
+  }
+
+  function onClear(){
+    localStorage.removeItem("divirgent_ocean_answers");
+    for (const it of ITEMS){
+      const checked = document.querySelector(`input[name="${it.id}"]:checked`);
+      if (checked) checked.checked = false;
+    }
+    document.querySelectorAll(".item.danger").forEach(n=>n.classList.remove("danger"));
+    document.querySelectorAll(".item.ok").forEach(n=>n.classList.remove("ok"));
+    by("#resTable tbody").innerHTML = "";
+    by("#strengths").innerHTML = "";
+    by("#growth").innerHTML = "";
+    by("#typesTop").innerHTML = "";
+    by("#fillAllNote").textContent = "Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.";
+    by("#fillAllNote").classList.add("muted");
+    updateProgress();
+    window.location.hash="";
+  }
+
+  function updateProgress(){
+    const model = calcScores();
+    const pct = Math.round((model.answered / model.total) * 100);
+    const bar = by("#progressBar");
+    if (bar) bar.style.width = pct + "%";
+  }
+
+  function highlightMissing(){
+    for (const it of ITEMS){
+      const answered = !!document.querySelector(`input[name="${it.id}"]:checked`);
+      const node = by(`#item-${it.id}`);
+      if (node){
+        node.style.borderColor = answered ? "var(--line)" : "#7f1d1d";
+      }
+    }
+    updateProgress();
+  }
+
+  /* ====== 6) Saugojimas localStorage ====== */
+  function saveToStorage(){
+    const ans = collectAnswers();
+    localStorage.setItem("divirgent_ocean_answers", JSON.stringify(ans));
+  }
+  function restoreFromStorage(){
+    try{
+      const raw = localStorage.getItem("divirgent_ocean_answers");
+      if (!raw) return;
+      const ans = JSON.parse(raw);
+      for (const [id, val] of Object.entries(ans || {})){
+        if (val==null) continue;
+        const input = document.querySelector(`input[name="${id}"][value="${val}"]`);
+        if (input) input.checked = true;
+      }
+    }catch(e){}
+  }
+
+  /* ====== 7) Startas ====== */
+  function boot(){
+    renderItems();
+    restoreFromStorage();
+    updateProgress();
+    document.getElementById("calcBtn").addEventListener("click", onCalculate);
+    document.getElementById("clearBtn").addEventListener("click", onClear);
+  }
+  document.addEventListener("DOMContentLoaded", boot);
+  </script>
 </body>
 </html>
