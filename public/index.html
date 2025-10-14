@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Divirgent Test V2.1 – OCEAN (LT)</title>
 
-  <!-- Minimalus UI + pritaikymas spausdinimui -->
   <style>
     :root{
       --bg:#0f1720; --fg:#eaf0f6; --muted:#9fb3c8; --panel:#13212b; --line:#213241;
@@ -35,9 +34,19 @@
     th, td { border:1px solid #213241; padding:8px; text-align:left; }
     th { background:#152431; }
 
+    .list { display:grid; gap:10px; margin:8px 0 6px; padding-left:0; list-style:none; }
+    .pill { display:flex; gap:8px; padding:10px 12px; background:#0f1a23; border:1px solid #203141; border-radius:10px; }
+    .pill strong { white-space:nowrap; }
+    .pill .pct { color:#9adbd4; font-weight:700; }
+
+    .grid-cards { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); }
+    .tcard { background:#0f1a23; border:1px solid #203141; border-radius:10px; padding:12px; }
+    .tcard h4 { margin:0 0 6px; font-size:16px; }
+    .tcard p  { margin:0; color:#cfe1ee; }
+
     footer { color:#9fb3c8; font-size:13px; text-align:center; padding:20px 16px 28px; }
 
-    /* Spausdinimui – rodome tik rezultatus; valdiklius ir klausimus slepiame */
+    /* Spausdinimui – slepiame valdiklius/klausimus, paliekame rezultatus */
     @media print {
       body { background:#fff; color:#000; }
       header, .no-print, .actions, #items { display:none !important; }
@@ -69,7 +78,6 @@
 
     <div id="itemsContainer" class="no-print"></div>
 
-    <!-- „Gauti rezultatą“ – po visais klausimais -->
     <div class="actions center no-print">
       <button id="btnSubmit">Gauti rezultatą</button>
     </div>
@@ -80,6 +88,7 @@
     <h2>Rezultatai</h2>
     <p id="summary">Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.</p>
 
+    <!-- Lentelė -->
     <table id="tblScores" class="hidden">
       <thead>
         <tr>
@@ -92,6 +101,18 @@
       <tbody></tbody>
     </table>
 
+    <!-- Nauja: TOP‑3 pagal OCEAN (stiprybės) -->
+    <h3 id="oStrengthHdr" class="hidden">TOP‑3 stiprybės (OCEAN)</h3>
+    <ul id="oStrengthList" class="list hidden"></ul>
+
+    <!-- Nauja: TOP‑3 augimo sritys su rekomendacijomis -->
+    <h3 id="oGrowthHdr" class="hidden">TOP‑3 augimo sritys (su rekomendacijomis)</h3>
+    <ul id="oGrowthList" class="list hidden"></ul>
+
+    <!-- TOP‑3 tipai kaip anksčiau -->
+    <h3 id="typesHdr" class="hidden">Tipų artimumas (TOP‑3)</h3>
+    <div id="typeCards" class="grid-cards hidden"></div>
+
     <div class="actions no-print hidden" id="printActions">
       <button id="btnPrint">Spausdinti PDF</button>
       <span style="color:#9fb3c8;font-size:12px">Naudokite naršyklės dialogą „Išsaugoti kaip PDF“.</span>
@@ -103,7 +124,7 @@
   © 2025 Divirgent Test · Vieno failo versija (index.html)
 </footer>
 
-<!-- 1) Inline JSON – 60 UNIKALIŲ teiginių (12 × kiekvienam domenui) -->
+<!-- 1) Inline JSON – 60 unikalių teiginių + centroidai tipams -->
 <script type="application/json" id="itemsData">
 {
   "name": "Divirgent Test V2.1 (LT)",
@@ -173,7 +194,17 @@
     {"id":"O10","domain":"Atvirumas patirčiai","reverse":true,"text":"Retai užduodu klausimą „o jeigu…?“."},
     {"id":"O11","domain":"Atvirumas patirčiai","reverse":false,"text":"Mėgstu kurti – nuo sprendimų iki dizaino."},
     {"id":"O12","domain":"Atvirumas patirčiai","reverse":true,"text":"Nelaikau savęs kūrybišku žmogumi."}
-  ]
+  ],
+  "type_centroids": {
+    "Dirigentė":   {"E":0.8,"A":0.2,"C":0.8,"ES":0.6,"O":0.2},
+    "Analitikas":  {"E":-0.6,"A":0.0,"C":0.4,"ES":0.6,"O":0.8},
+    "Diplomatė":   {"E":0.2,"A":0.8,"C":0.2,"ES":0.6,"O":0.2},
+    "Inovatorė":   {"E":0.6,"A":-0.2,"C":-0.1,"ES":0.3,"O":0.9},
+    "Stabilizuotoja":{"E":-0.4,"A":0.6,"C":0.8,"ES":0.8,"O":-0.4},
+    "Mentorius":   {"E":0.2,"A":0.8,"C":0.7,"ES":0.7,"O":0.3},
+    "Variklis":    {"E":0.9,"A":-0.1,"C":0.6,"ES":0.3,"O":0.7},
+    "Architektė":  {"E":-0.5,"A":-0.3,"C":0.7,"ES":0.7,"O":0.9}
+  }
 }
 </script>
 
@@ -194,15 +225,52 @@
     tbl: document.getElementById('tblScores'),
     tblBody: document.querySelector('#tblScores tbody'),
 
-    globalErr: document.getElementById('globalError'),
     summary: document.getElementById('summary'),
+    globalErr: document.getElementById('globalError'),
     results: document.getElementById('results'),
-    printActions: document.getElementById('printActions')
+    printActions: document.getElementById('printActions'),
+
+    oStrengthHdr: document.getElementById('oStrengthHdr'),
+    oStrengthList: document.getElementById('oStrengthList'),
+    oGrowthHdr: document.getElementById('oGrowthHdr'),
+    oGrowthList: document.getElementById('oGrowthList'),
+
+    typesHdr: document.getElementById('typesHdr'),
+    typeCards: document.getElementById('typeCards')
   };
 
   // ---- Būsena
   let META = null;
   let ITEMS = [];
+
+  // ---- Žodynai
+  const DOMAIN_LABELS = {
+    E: 'Ekstraversija', A: 'Malonumas', C: 'Sąžiningumas/Atidumas', ES: 'Emocinis stabilumas', O: 'Atvirumas patirčiai'
+  };
+  const DOMAIN_DESCR = {
+    E: 'Energija, iniciatyva ir socialinis aktyvumas.',
+    A: 'Empatija, pagarba ir bendradarbiavimas.',
+    C: 'Tvarka, atsakomybė ir nuoseklus siekis.',
+    ES:'Ramybė, streso valdymas ir emocinė pusiausvyra.',
+    O: 'Smalsumas, naujos idėjos ir kūrybiškumas.'
+  };
+  const DOMAIN_TIPS = {
+    E: ['Planuok 1–2 socialinius „mini‑išėjimus“ per savaitę.', 'Kartą per mėnesį – viešas pasisakymas/ataskaita komandoje.', 'Treniruok iniciatyvą: pirmas(-a) užduok 1 klausimą susitikime.'],
+    A: ['Kasdien sąmoningai padėkok 1 žmogui už konkretų veiksmą.', 'Konfliktuose naudok „Aš‑žinutes“ vietoj „Tu‑kaltini“.', 'Skirk 15 min. empatiniam klausymui be pertraukimų.'],
+    C: ['Darbų valdymas: „Top‑3“ prioritetai kiekvienos dienos pradžioje.', 'Laiko dėžutės (time‑boxing): 25–50 min. blokai be trikdžių.', '„Uždarymo ritualas“: 10 min. tvarka darbo pabaigoje.'],
+    ES:['2–3 kartus per dieną 2 min. kvėpavimo ciklas (4‑4‑6).', '„Streso žurnalas“: trigeris → reakcija → alternatyvi interpretacija.', 'Planas „B“ kritinėms situacijoms – 3 konkretūs žingsniai.'],
+    O: ['Kas savaitę – 1 naujas šaltinis (straipsnis, podcast).', 'Idėjų „3x“: kiekvienai problemai – 3 alternatyvos.', 'Įtrauk „mini prototipą“ prieš ilgą įgyvendinimą.']
+  };
+  const TYPE_DESCR = {
+    'Dirigentė':'Kryptis, standartai, sprendimų tempas; rizika – perkontrolė.',
+    'Analitikas':'Duomenys, logika, sisteminis mąstymas; rizika – peranalizavimas.',
+    'Diplomatė':'Santykiai, kompromisai, empatija; rizika – konfliktų vengimas.',
+    'Inovatorė':'Naujovės, eksperimentai, galimybių matymas; rizika – neužbaigtumas.',
+    'Stabilizuotoja':'Nuoseklumas, procesai, kokybė; rizika – pasipriešinimas pokyčiams.',
+    'Mentorius':'Ugdymas, grįžtamasis ryšys; rizika – per didelė globa.',
+    'Variklis':'Aktyvacija, energija, rezultatas; rizika – per didelis spaudimas.',
+    'Architektė':'Struktūra, dizainas, ilgalaikė logika; rizika – teorinis šaltumas.'
+  };
 
   // ---- Pagalbinės
   const scrollTo = (node) => node?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -220,6 +288,31 @@
     const out = {};
     for (const [k, vals] of map.entries()) out[k] = { mean: vals.reduce((a,b)=>a+b,0)/vals.length, n: vals.length };
     return out;
+  };
+
+  // N -> ES (emocinis stabilumas) vektoriui/rikiavimui
+  const toVec = (scores) => {
+    const E = normMinus1to1(scores['Ekstraversija'].mean);
+    const A = normMinus1to1(scores['Malonumas'].mean);
+    const C = normMinus1to1(scores['Sąžiningumas/Atidumas'].mean);
+    const N = normMinus1to1(scores['Neurotiškumas'].mean);
+    const ES = -N; // kuo mažiau N, tuo daugiau ES
+    const O = normMinus1to1(scores['Atvirumas patirčiai'].mean);
+    return {E,A,C,ES,O};
+  };
+
+  const euclid = (p, q) => {
+    const keys = ['E','A','C','ES','O'];
+    return Math.sqrt(keys.reduce((s,k)=> s + Math.pow((p[k]??0)-(q[k]??0),2), 0));
+  };
+  const top3Types = (vec, centroids) => {
+    if (!centroids) return [];
+    const arr = Object.entries(centroids).map(([name,c])=>{
+      const d = euclid(vec,c);
+      const sim = 1/(1+d);
+      return {name, dist:d, sim};
+    }).sort((a,b)=>a.dist-b.dist).slice(0,3);
+    return arr;
   };
 
   // ---- Forma
@@ -263,12 +356,13 @@
   };
 
   const renderScores = (scores) => {
+    // 1) Lentelė
     el.tblBody.innerHTML = '';
     const order = ['Ekstraversija','Malonumas','Sąžiningumas/Atidumas','Neurotiškumas','Atvirumas patirčiai'];
     for (const key of order){
       const s = scores[key];
-      const tr = document.createElement('tr');
       const norm = normMinus1to1(s.mean);
+      const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${key}</td>
         <td>${s.mean.toFixed(2)}</td>
@@ -278,14 +372,69 @@
       el.tblBody.appendChild(tr);
     }
     el.tbl.classList.remove('hidden');
-    el.summary.textContent = 'Rezultatai sugeneruoti. Žemiau – domenų vidurkiai.';
-    el.printActions.classList.remove('hidden');
+  };
+
+  const renderOCEANTop3 = (scores) => {
+    // Konvertuojame į E,A,C,ES,O (ES = 6-N vidurkis -> vėliau paverčiame į %)
+    const means = {
+      E: scores['Ekstraversija'].mean,
+      A: scores['Malonumas'].mean,
+      C: scores['Sąžiningumas/Atidumas'].mean,
+      ES: 6 - scores['Neurotiškumas'].mean,
+      O: scores['Atvirumas patirčiai'].mean
+    };
+    const pairs = Object.entries(means).map(([k,m]) => ({k, label:DOMAIN_LABELS[k], pct: pct0to100(m)}));
+
+    // Stiprybės (nuo didžiausio %)
+    const strengths = [...pairs].sort((a,b)=> b.pct - a.pct).slice(0,3);
+    el.oStrengthList.innerHTML = '';
+    strengths.forEach(s=>{
+      const li = document.createElement('li'); li.className='pill';
+      li.innerHTML = `<strong>${s.label}</strong><span class="pct">${s.pct}%</span><span>— ${DOMAIN_DESCR[s.k]}</span>`;
+      el.oStrengthList.appendChild(li);
+    });
+    el.oStrengthHdr.classList.remove('hidden');
+    el.oStrengthList.classList.remove('hidden');
+
+    // Augimo sritys (nuo mažiausio %)
+    const growth = [...pairs].sort((a,b)=> a.pct - b.pct).slice(0,3);
+    el.oGrowthList.innerHTML = '';
+    growth.forEach(g=>{
+      const tips = DOMAIN_TIPS[g.k] || [];
+      const li = document.createElement('li'); li.className='pill';
+      const tipsHtml = tips.length ? `<ul style="margin:6px 0 0 14px;padding:0;">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>` : '';
+      li.innerHTML = `<div><strong>${g.label}</strong> <span class="pct">${g.pct}%</span><div style="margin-top:4px;color:#cfe1ee;">Rekomendacijos:${tipsHtml}</div></div>`;
+      el.oGrowthList.appendChild(li);
+    });
+    el.oGrowthHdr.classList.remove('hidden');
+    el.oGrowthList.classList.remove('hidden');
+
+    return { strengths, growth };
+  };
+
+  const renderTypesTop3 = (scores) => {
+    const vec = toVec(scores);
+    const top = top3Types(vec, META?.type_centroids);
+    if (!top.length) return;
+    el.typeCards.innerHTML = '';
+    top.forEach(t=>{
+      const card = document.createElement('div'); card.className='tcard';
+      card.innerHTML = `<h4>${t.name} <span style="color:#9adbd4">(${(t.sim*100).toFixed(0)}%)</span></h4>
+                        <p>${TYPE_DESCR[t.name] || 'Aprašymas ruošiama.'}</p>`;
+      el.typeCards.appendChild(card);
+    });
+    el.typesHdr.classList.remove('hidden');
+    el.typeCards.classList.remove('hidden');
   };
 
   const resetForm = () => {
     document.querySelectorAll('#itemsContainer input[type="radio"]').forEach(i => i.checked = false);
     el.tbl.classList.add('hidden');
     el.tblBody.innerHTML = '';
+
+    [el.oStrengthHdr, el.oGrowthHdr, el.typesHdr].forEach(n=>n.classList.add('hidden'));
+    [el.oStrengthList, el.oGrowthList, el.typeCards].forEach(n=>{ n.classList.add('hidden'); n.innerHTML=''; });
+
     el.summary.textContent = 'Užpildykite visus teiginius ir paspauskite „Gauti rezultatą“.';
     el.printActions.classList.add('hidden');
     clearError();
@@ -315,8 +464,14 @@
     clearError();
     const resp = readResponses();
     if (!resp.ok){ showError(`Neatsakytas teiginys: ${resp.missing}. Užpildykite visus teiginius.`); return; }
+
     const scores = byDomain(resp.rows);
-    renderScores(scores);
+    renderScores(scores);                    // lentelė
+    renderOCEANTop3(scores);                 // TOP‑3 OCEAN (stiprybės + augimas)
+    renderTypesTop3(scores);                 // TOP‑3 tipai (kaip anksčiau)
+
+    el.summary.textContent = 'Rezultatai sugeneruoti. Žemiau – OCEAN stiprybės/augimas ir tipų artimumas.';
+    el.printActions.classList.remove('hidden');
     scrollTo(el.results);
   });
   document.getElementById('btnPrint')?.addEventListener('click', () => window.print());
