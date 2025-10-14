@@ -150,7 +150,7 @@
     }
     el.tbl.classList.remove('hidden');
 
-    // PATAISYTA EILUTĖ
+    // ← ŠITA eilutė turi būti būtent tokia:
     const top = top3Types(vec, META.type_centroids || {});
     el.topList.innerHTML = '';
     top.forEach(t => {
