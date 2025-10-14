@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Divirgent Test V2.0 (LT) – 60 klausimų (numatyta)</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+  <style>
+    :root{--max:980px;--pad:16px;--c1:#111;--c2:#555;--bg:#fff;--b:#e9e9ee;--p:#0b6dde}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:var(--max);margin:32px auto;padding:0 var(--pad);color:var(--c1);background:var(--bg)}
+    h1{margin:0 0 8px}
+    .muted{color:var(--c2)}
+    .dom{margin-top:24px;font-weight:600}
+    .item{margin:8px 0;padding:10px;border:1px solid var(--b);border-radius:8px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{background:var(--p);color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    .panel{border:1px solid var(--b);border-radius:12px;padding:16px;margin:16px 0}
+    pre{background:#0b1020;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto}
+    .pill{display:inline-block;background:#f2f4f7;border:1px solid var(--b);padding:2px 8px;border-radius:999px;margin-right:6px}
+  </style>
+</head>
+<body>
+  <h1>Divirgent Test V2.0 (LT)</h1>
+  <p class="muted">Numatyta versija: <b>60 teiginių</b>. (Jei reikės, vėliau galime pridėti perjungiklį į 30.)</p>
+
+  <div class="panel">
+    <b>Instrukcija.</b> Įvertink kiekvieną teiginį skalėje 1–5: 1 – Visiškai nesutinku · 2 – Nesutinku · 3 – Nei taip, nei ne · 4 – Sutinku · 5 – Visiškai sutinku. 
+    Invertuoti teiginiai (pažymėti kursyvu) bus perskaičiuoti automatiškai.
+  </div>
+
+  <div id="form"></div>
+  <div class="row" style="margin:16px 0 24px">
+    <button id="score">Gauti rezultatą</button>
+    <button id="clear">Išvalyti</button>
+  </div>
+
+  <div id="results" class="panel" style="display:none">
+    <h2>Rezultatai</h2>
+    <canvas id="radar" width="420" height="320"></canvas>
+    <div id="summary"></div>
+    <h3>Tipų artimumas</h3>
+    <ol id="types"></ol>
+    <details>
+      <summary>Žali duomenys</summary>
+      <pre id="raw"></pre>
+    </details>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(async () => {
+  const data = await fetch('divirgent_v2_items_lt.json').then(r=>r.json());
+  const items = data.items_full; // 60 – numatyta
+  const rev = new Set(data.reverse_ids);
+  const scoring = data.scoring;
+
+  const form = document.getElementById('form');
+  let lastDom = '';
+  for (const it of items){
+    if (it.domain !== lastDom){
+      lastDom = it.domain;
+      const h = document.createElement('div'); h.className='dom'; h.textContent=it.domain; form.appendChild(h);
+    }
+    const d = document.createElement('div'); d.className='item';
+    d.innerHTML = `<label><b>${it.id}</b> ${rev.has(it.id)?'<i>'+it.text+'</i>':it.text}</label><br/>
+      ${[1,2,3,4,5].map(v=>`<label class="pill"><input type="radio" name="${it.id}" value="${v}"> ${v}</label>`).join(' ')}`;
+    form.appendChild(d);
+  }
+
+  const radarCtx = document.getElementById('radar');
+  let radar;
+
+  function zScore(arr){
+    const m = arr.reduce((a,b)=>a+b,0)/arr.length;
+    const sd = Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length)||1;
+    return arr.map(v => (v-m)/sd);
+  }
+  function cosine(a,b){
+    const dot = a.reduce((s,v,i)=>s+v*b[i],0);
+    const na = Math.hypot(...a)||1, nb = Math.hypot(...b)||1;
+    return dot/(na*nb);
+  }
+
+  document.getElementById('score').onclick = () => {
+    const ans = {};
+    for (const it of items){
+      const el = document.querySelector(`input[name="${it.id}"]:checked`);
+      const v = el? +el.value : 0;
+      if(!v){ alert('Užpildyk visus teiginius'); return; }
+      ans[it.id] = rev.has(it.id) ? 6 - v : v;
+    }
+
+    // Domain means
+    const dm = {};
+    for (const [dom, ids] of Object.entries(scoring)){
+      const vals = ids.filter(id=>id in ans).map(id=>ans[id]);
+      dm[dom] = vals.reduce((s,x)=>s+x,0)/vals.length;
+    }
+
+    // Vector order: E, A, C, N, O → then compute ES = -Z(N)
+    const vec = [dm['Ekstraversija'], dm['Malonumas'], dm['Sąžiningumas/Atidumas'], dm['Neurotiškumas'], dm['Atvirumas patirčiai']];
+    const z = zScore(vec);
+    const ES = -z[3];
+    const zvec = [z[0], z[1], z[2], ES, z[4]];
+
+    // Types
+    const types = Object.entries(data.type_centroids).map(([name,c])=>{
+      const cvec = [c.E, c.A, c.C, c.ES, c.O];
+      return [name, cosine(zvec, cvec)];
+    }).sort((a,b)=>b[1]-a[1]);
+
+    // Radar
+    const labels = ['Ekstraversija','Malonumas','Sąžiningumas/Atidumas','Emocinis stabilumas','Atvirumas'];
+    const rvals = [zvec[0], zvec[1], zvec[2], zvec[3], zvec[4]];
+    if (radar) radar.destroy();
+    radar = new Chart(radarCtx, {
+      type: 'radar',
+      data: { labels, datasets: [{ label: 'Z‑scores', data: rvals, borderColor:'#0b6dde', backgroundColor:'rgba(11,109,222,0.2)' }] },
+      options: { scales: { r:{ suggestedMin:-2, suggestedMax:2 } } }
+    });
+
+    // Summary
+    const s = document.getElementById('summary');
+    s.innerHTML = `<p><b>Domenų vidurkiai (1–5):</b> E=${dm['Ekstraversija'].toFixed(2)}, A=${dm['Malonumas'].toFixed(2)}, C=${dm['Sąžiningumas/Atidumas'].toFixed(2)}, N=${dm['Neurotiškumas'].toFixed(2)}, O=${dm['Atvirumas patirčiai'].toFixed(2)}</p>`;
+
+    // Types list
+    const ol = document.getElementById('types');
+    ol.innerHTML = '';
+    types.slice(0,5).forEach(([n,sim])=>{ const li=document.createElement('li'); li.textContent=`${n} — panašumas ${(sim*100).toFixed(1)}%`; ol.appendChild(li);});
+
+    // Raw
+    document.getElementById('raw').textContent = JSON.stringify({dm, z:{E:z[0],A:z[1],C:z[2],ES, O:z[4]}, tipai: types.slice(0,5)}, null, 2);
+
+    document.getElementById('results').style.display = 'block';
+    window.scrollTo({top: document.getElementById('results').offsetTop-12, behavior:'smooth'});
+  };
+
+  document.getElementById('clear').onclick = () => {
+    document.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
+    document.getElementById('results').style.display = 'none';
+  };
+})();
+</script>
+</body>
+</html>
