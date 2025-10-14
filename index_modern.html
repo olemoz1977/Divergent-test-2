@@ -1,0 +1,331 @@
+
+<!doctype html>
+<html lang="lt" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Divirgent Test V2.1 – OCEAN + Tipai (LT)</title>
+  <!-- Minimal modern UI with Pico.css and Tabler Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.13.0/tabler-icons.min.css" rel="stylesheet">
+  <style>
+    :root{--max: 980px}
+    main.container{max-width:var(--max)}
+    .hero{padding:1.6rem;border:1px solid var(--pico-muted-border-color);border-radius:14px;background:var(--pico-muted-color);}
+    .muted{color:var(--pico-muted-color-text)}
+    .dom{margin-top:1.2rem;font-weight:600}
+    .item{border:1px solid var(--pico-muted-border-color);border-radius:12px;padding:.8rem}
+    .progress{height:10px;background:var(--pico-muted-border-color);border-radius:999px;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg,#0b6dde,#4cc9f0);width:0%}
+    .pill{display:inline-block;border:1px solid var(--pico-muted-border-color);padding:.1rem .6rem;border-radius:999px;margin-right:.25rem}
+    .grid-2{display:grid;grid-template-columns: 1fr;gap:1rem}
+    @media(min-width:900px){.grid-2{grid-template-columns: 1.1fr .9fr}}
+    #results{display:none}
+    .tip{border-left:3px solid #0b6dde;padding-left:.8rem}
+  </style>
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><strong>Divirgent Test V2.1</strong></li>
+      </ul>
+      <ul>
+        <li><button id="theme" class="secondary outline" aria-label="Perjungti temą"><i class="ti ti-moon"></i></button></li>
+        <li><a href="#about" role="button" class="secondary">Kas tai?</a></li>
+        <li><a href="#start" role="button">Pradėti</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <section class="hero" id="about">
+      <hgroup>
+        <h1>Asmenybės testas pagal OCEAN, su tipais ir praktinėmis rekomendacijomis</h1>
+        <p class="muted">~8–10 min · 60 teiginių · jokio prisijungimo · skaičiavimas naršyklėje</p>
+      </hgroup>
+      <ul>
+        <li><i class="ti ti-chart-radar"></i> Radar grafikas: Ekstraversija, Malonumas, Sąžiningumas, Emocinis stabilumas, Atvirumas</li>
+        <li><i class="ti ti-stars"></i> Tipų artimumas (TOP‑3): Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė</li>
+        <li><i class="ti ti-bulb"></i> <b>Praktinės rekomendacijos</b> pagal tavo TOP domenus ir tipų mišinį</li>
+        <li><i class="ti ti-shield-check"></i> Privatumas: atsakymai niekur nesiunčiami; viskas skaičiuojama lokaliai</li>
+      </ul>
+      <div class="grid">
+        <a href="#start" role="button" class="contrast"><i class="ti ti-player-play"></i> Pradėti testą</a>
+        <a href="README.html" class="secondary">Išsamus aprašas (README)</a>
+      </div>
+    </section>
+
+    <section id="start" class="grid-2">
+      <article>
+        <h2>Teiginiai</h2>
+        <p class="muted">Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. Invertuoti teiginiai pažymėti <em>kursyvu</em>.</p>
+        <div class="progress" aria-hidden="true"><div id="bar" class="bar"></div></div>
+        <div id="form"></div>
+        <footer class="grid">
+          <button id="score"><i class="ti ti-sparkles"></i> Gauti rezultatą</button>
+          <button id="clear" class="secondary"><i class="ti ti-eraser"></i> Išvalyti</button>
+        </footer>
+      </article>
+      <aside>
+        <h2>Rezultatai</h2>
+        <div id="results">
+          <canvas id="radar" width="480" height="360" aria-label="Radar grafikas" role="img"></canvas>
+          <div id="summary"></div>
+          <details open>
+            <summary><b>Praktinės rekomendacijos</b></summary>
+            <ol id="recs"></ol>
+          </details>
+          <h3>Tipų artimumas</h3>
+          <ol id="types"></ol>
+          <div class="grid">
+            <button id="download" class="outline"><i class="ti ti-file-download"></i> Atsisiųsti PDF</button>
+            <button id="copylink" class="outline secondary"><i class="ti ti-link"></i> Nukopijuoti rezultatų nuorodą</button>
+          </div>
+          <details>
+            <summary>Žali duomenys</summary>
+            <pre id="raw"></pre>
+          </details>
+        </div>
+        <p class="tip"><small><b>Atsakomybė:</b> tai savęs įsivertinimo įrankis mokymuisi ir refleksijai. Be normų interpretacijos yra indikatyvios.</small></p>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="container">
+    <hr />
+    <small>© 2025 Divirgent Test · Atviro kodo demonstracija · Suderinama su GitHub Pages</small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script>
+  (async () => {
+    const data = await fetch('divirgent_v2_items_lt.json').then(r=>r.json());
+    const items = data.items_full; // 60 – default
+    const rev = new Set(data.reverse_ids);
+    const scoring = data.scoring;
+
+    const form = document.getElementById('form');
+    const bar = document.getElementById('bar');
+
+    let lastDom = '';
+    for (const it of items){
+      if (it.domain !== lastDom){
+        lastDom = it.domain;
+        form.insertAdjacentHTML('beforeend', `<h4 class="dom">${it.domain}</h4>`);
+      }
+      const html = `
+        <div class="item">
+          <label><b>${it.id}</b> ${rev.has(it.id)?'<em>'+it.text+'</em>':it.text}</label>
+          <div>
+            ${[1,2,3,4,5].map(v=>`<label class="pill"><input type="radio" name="${it.id}" value="${v}"> ${v}</label>`).join(' ')}
+          </div>
+        </div>`;
+      form.insertAdjacentHTML('beforeend', html);
+    }
+
+    const allInputs = Array.from(document.querySelectorAll('input[type=radio]'));
+    const updateProgress = () => {
+      const answered = new Set(Array.from(document.querySelectorAll('input[type=radio]:checked')).map(x=>x.name)).size;
+      const pct = Math.round(100*answered/items.length);
+      bar.style.width = pct+'%';
+      bar.title = pct+'%';
+    };
+    allInputs.forEach(i=>i.addEventListener('change', updateProgress));
+
+    // Helpers
+    function zScore(arr){
+      const m = arr.reduce((a,b)=>a+b,0)/arr.length;
+      const sd = Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length)||1;
+      return arr.map(v => (v-m)/sd);
+    }
+    function cosine(a,b){
+      const dot = a.reduce((s,v,i)=>s+v*b[i],0);
+      const na = Math.hypot(...a)||1, nb = Math.hypot(...b)||1;
+      return dot/(na*nb);
+    }
+
+    // Recommendations engine
+    function generateRecommendations(dm, zvec, topTypes){
+      const recs = [];
+      const [zE,zA,zC,zES,zO] = zvec; // ES=stability
+      const topDomains = [
+        ['Ekstraversija', zE],
+        ['Malonumas', zA],
+        ['Sąžiningumas/Atidumas', zC],
+        ['Emocinis stabilumas', zES],
+        ['Atvirumas', zO]
+      ].sort((a,b)=>b[1]-a[1]).slice(0,2);
+
+      const add = (title, steps) => recs.push({title, steps});
+      // Domain-driven suggestions
+      if (zC > 0.6) add('Sistemos ir įpročiai (C↑)', [
+        'Įsivesk savaitinį OKR/kanban: 3 tikslai → 3 užduotys kiekvienam (30 min pirmadienį).',
+        'Darbų „uždarymo ritualas“: paskutinės 15 min. – peržiūra, planas rytojui, „Done“ suvestinė.'
+      ]);
+      if (zO > 0.6) add('Inovacijų mikro‑eksperimentai (O↑)', [
+        'Kas dvi savaites sukurk 1 mažą prototipą / A/B idėją (≤2 val.).',
+        'Vesk „idėjų sėklų“ žurnalą (3 užrašai per savaitę) ir vieną paversk veiksmu.'
+      ]);
+      if (zE > 0.6) add('Matoma komunikacija (E↑)', [
+        'Prisiimk 1 trumpą moderavimo vaidmenį per savaitę (pvz., 10 min „stand‑up“).',
+        '„3 žmogų taisyklė“: kiekviename susitikime užduok 1 klausimą skirtingiems 3 žmonėms.'
+      ]);
+      if (zA > 0.6) add('Partnerystės ir mediacija (A↑)', [
+        'Įsidiek „steel‑manning“: prieš kritikuodamas, perfrazuok kolegos mintį geriausia forma.',
+        'Kiekvienam konfliktui pasiūlyk 2 kompromisus ir 1 bendrą KPI.'
+      ]);
+      if (zES < -0.4) add('Streso valdymas (ES↓ / N↑)', [
+        '„Box‑breathing“ 4×4×4×4 prieš sudėtingą užduotį (2 min).',
+        'Apibrėžk „Stop‑Loss“ – aiškias pertraukų ribas (pomodoro 25/5, 4 ciklai = 1 ilga pertrauka).'
+      ]);
+
+      // Type-driven nuance
+      const topType = topTypes[0]?.[0] || '';
+      switch(topType){
+        case 'Dirigentė':
+          add('Lyderystės higiena (Dirigentė)', [
+            'Deleguok naudojant „WHO/WHAT/WHEN“ formatą raštu.',
+            'Savaitinis 1:1 su komandos nariu (25 min): progresas, kliūtys, pagalba.'
+          ]); break;
+        case 'Analitikas':
+          add('Duomenimis grįsti sprendimai (Analitikas)', [
+            'Prie kiekvieno pasiūlymo pridėk 1 skaičių ir 1 grafiką (net jei tai micro‑matuoklis).',
+            'Kas savaitę pasirink 1 hipotezę ir ištestuok ją 1 eksperimentu.'
+          ]); break;
+        case 'Diplomatė':
+          add('Sąmoninga komunikacija (Diplomatė)', [
+            'Įvesk „Check‑in“ ratą: 1 sakinys iš kiekvieno susitikimo pradžioje.',
+            'Konfliktuose naudok NVC: Faktas → Jausmas → Poreikis → Prašymas.'
+          ]); break;
+        case 'Inovatorė':
+          add('Greita prototipų kultūra (Inovatorė)', [
+            '„Savaitės prototipas“: Figma/Miro/Notion maketas per 60 min, grįžtamasis ryšys iš 2 žmonių.',
+            '„10× idėja“: kas mėnesį sugalvok 1 drąsią idėją ir suskaidyk į 3 mažus žingsnius.'
+          ]); break;
+        case 'Stabilizuotoja':
+          add('Procesų stabilumas (Stabilizuotoja)', [
+            'Sukurk „Runbook“ 1 pasikartojančiai operacijai (5–7 žingsniai).',
+            'Įdiek „health‑checks“ kartą per savaitę: 5 KPI + spalvinis kodas.'
+          ]); break;
+        case 'Mentorius':
+          add('Mentorystės sklaida (Mentorius)', [
+            'Kas savaitę 30 min „office hours“ komandai.',
+            'Sukurk 1 puslapio „greitą pradžią“ naujokui apie savo sritį.'
+          ]); break;
+        case 'Variklis':
+          add('Fokusas į rezultatą (Variklis)', [
+            '„North‑Star“ metrika vienam mėnesiui, vizualizuok kasdien.',
+            '„No‑meeting blocks“: 2×2 val. giliam darbui.'
+          ]); break;
+        case 'Architektė':
+          add('Sisteminiai sprendimai (Architektė)', [
+            'Modeliuok sprendimą C4/diagramose arba paprastais blokais (skaidėse).',
+            'Prieš diegiant, atlik „pre‑mortem“: 5 galimos nesėkmės + prevencijos.'
+          ]); break;
+      }
+      return recs;
+    }
+
+    let radar;
+    const radarCtx = document.getElementById('radar');
+
+    document.getElementById('score').onclick = () => {
+      const ans = {};
+      for (const it of items){
+        const el = document.querySelector(`input[name="${it.id}"]:checked`);
+        const v = el? +el.value : 0;
+        if(!v){ alert('Užpildyk visus teiginius'); return; }
+        ans[it.id] = rev.has(it.id) ? 6 - v : v;
+      }
+
+      // Domain means
+      const dm = {};
+      for (const [dom, ids] of Object.entries(scoring)){
+        const vals = ids.filter(id=>id in ans).map(id=>ans[id]);
+        dm[dom] = vals.reduce((s,x)=>s+x,0)/vals.length;
+      }
+
+      // z and ES
+      const vec = [dm['Ekstraversija'], dm['Malonumas'], dm['Sąžiningumas/Atidumas'], dm['Neurotiškumas'], dm['Atvirumas patirčiai']];
+      const z = zScore(vec);
+      const ES = -z[3];
+      const zvec = [z[0], z[1], z[2], ES, z[4]];
+
+      // Types
+      const types = Object.entries(data.type_centroids).map(([name,c])=>{
+        const cvec = [c.E, c.A, c.C, c.ES, c.O];
+        return [name, (function(){ const cs = (a,b)=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const na=Math.hypot(...a)||1;const nb=Math.hypot(...b)||1;return dot/(na*nb)}; return cs(zvec, cvec); })()];
+      }).sort((a,b)=>b[1]-a[1]);
+
+      // Radar
+      const labels = ['Ekstraversija','Malonumas','Sąžiningumas/Atidumas','Emocinis stabilumas','Atvirumas'];
+      const rvals = [zvec[0], zvec[1], zvec[2], zvec[3], zvec[4]];
+      if (radar) radar.destroy();
+      radar = new Chart(radarCtx, {
+        type: 'radar',
+        data: { labels, datasets: [{ label: 'Z‑scores', data: rvals, borderColor:'#0b6dde', backgroundColor:'rgba(11,109,222,.20)', pointBackgroundColor:'#0b6dde' }] },
+        options: { scales: { r:{ suggestedMin:-2, suggestedMax:2 } }, plugins:{legend:{display:false}} }
+      });
+
+      // Summary
+      const s = document.getElementById('summary');
+      s.innerHTML = `<p><b>Domenų vidurkiai (1–5):</b> E=${dm['Ekstraversija'].toFixed(2)}, A=${dm['Malonumas'].toFixed(2)}, C=${dm['Sąžiningumas/Atidumas'].toFixed(2)}, N=${dm['Neurotiškumas'].toFixed(2)}, O=${dm['Atvirumas patirčiai'].toFixed(2)}</p>`;
+
+      // Types list
+      const ol = document.getElementById('types');
+      ol.innerHTML = '';
+      types.slice(0,5).forEach(([n,sim])=>{ const li=document.createElement('li'); li.textContent=`${n} — panašumas ${(sim*100).toFixed(1)}%`; ol.appendChild(li);});
+
+      // Recommendations
+      const recs = generateRecommendations(dm, zvec, types);
+      const rl = document.getElementById('recs'); rl.innerHTML='';
+      recs.slice(0,6).forEach(r=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<b>${r.title}</b><ul>${r.steps.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+        rl.appendChild(li);
+      });
+
+      // Raw
+      document.getElementById('raw').textContent = JSON.stringify({dm, z:{E:z[0],A:z[1],C:z[2],ES, O:z[4]}, tipai: types.slice(0,5)}, null, 2);
+
+      document.getElementById('results').style.display = 'block';
+      window.scrollTo({top: document.getElementById('results').offsetTop-12, behavior:'smooth'});
+    };
+
+    // Clear
+    document.getElementById('clear').onclick = () => {
+      document.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
+      document.getElementById('results').style.display = 'none';
+      bar.style.width = '0%';
+    };
+
+    // PDF export
+    document.getElementById('download').onclick = async () => {
+      const {{ jsPDF }} = window.jspdf;
+      const doc = new jsPDF({unit:'pt', format:'a4'});
+      const summary = document.getElementById('summary').innerText || '';
+      doc.text('Divirgent Test V2.1 – Rezultatai', 40, 40);
+      doc.text(summary, 40, 70);
+      doc.html(document.getElementById('types'), { x:40, y: 100, width:520 });
+      doc.html(document.getElementById('recs'), { x:40, y: 220, width:520 });
+      doc.save('Divirgent_Test_Rezultatai.pdf');
+    };
+
+    // Copy link (hash-based state in future; for now simple)
+    document.getElementById('copylink').onclick = async () => {
+      await navigator.clipboard.writeText(location.href);
+      alert('Nuoroda nukopijuota');
+    };
+
+    // Theme toggle
+    const themeBtn = document.getElementById('theme');
+    const setTheme = (t)=>{ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme',t); themeBtn.innerHTML = t==='light'? '<i class="ti ti-moon"></i>' : '<i class="ti ti-sun"></i>'; };
+    const cur = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches? 'dark':'light');
+    setTheme(cur);
+    themeBtn.onclick = ()=> setTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+  })();
+  </script>
+</body>
+</html>
