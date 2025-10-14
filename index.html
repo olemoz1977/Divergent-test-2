@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Divirgent Test V2.1 – OCEAN + Tipai (LT)</title>
+  https://cdn.jsdelivr.net
+  https://cdn.jsdelivr.net/npm
+  <style>
+    :root { --bg:#0b0c10; --fg:#eaf0f6; --muted:#a3b3c2; --accent:#4dc0b5; --error:#ff6b6b; }
+    html,body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; background:var(--bg); color:var(--fg); }
+    header,main,footer { max-width:980px; margin:auto; padding:16px; }
+    header h1 { margin:8px 0 0; font-size:1.4rem; }
+    header p { margin:4px 0 0; color:var(--muted); }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 20px; }
+    button, .btn {
+      background:var(--accent); color:#001a1a; border:none; padding:10px 14px; border-radius:8px; font-weight:600;
+      cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.2);
+    }
+    button.secondary { background:#21333d; color:var(--fg); }
+    button.warning { background:#3a1c1c; color:#ffb3b3; border:1px solid #833; }
+    section h2 { margin:24px 0 8px; font-size:1.1rem; }
+    .note { color:var(--muted); font-size:.95rem; }
+    .error { color:var(--error); font-weight:600; margin:8px 0; }
+    .hidden { display:none !important; }
+    .item { padding:12px; border-bottom:1px solid #1a2630; }
+    .item h4 { margin:0 0 8px; font-size:1rem; }
+    .scale { display:flex; gap:10px; flex-wrap:wrap; }
+    .scale label { display:flex; align-items:center; gap:6px; background:#121a21; padding:6px 8px; border-radius:6px; border:1px solid #1f2b35; }
+    .domain-tag { font-size:.85rem; color:#9dc1b8; margin-left:6px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:800px){ .grid { grid-template-columns:1fr; } }
+    .card { background:#0f151c; border:1px solid #1f2b35; border-radius:12px; padding:16px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:8px 10px; text-align:left; border-bottom:1px solid #1f2b35; }
+    canvas { max-width:100%; }
+    .muted { color:var(--muted); }
+    .kbd { background:#111; border:1px solid #333; border-radius:4px; padding:2px 6px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Divirgent Test V2.1 – OCEAN + Tipai (LT)</h1>
+  <p class="note">~8–10 min · 60 teiginių · be prisijungimo · skaičiuojama naršyklėje</p>
+  <div class="actions">
+    <button id="btnStart">Pradėti testą</button>
+    <button id="btnSubmit" class="secondary">Gauti rezultatą</button>
+    <button id="btnReset" class="warning">Išvalyti</button>
+  </div>
+  <div id="globalError" class="error hidden"></div>
+</header>
 
+<main>
+  <section id="about" class="card">
+    <h2>Kas tai?</h2>
+    <p>Radaras: Ekstraversija, Malonumas, Sąžiningumas/Atidumas, Emocinis stabilumas, Atvirumas. Tipų artimumas (TOP‑3): Dirigentė, Analitikas, Diplomatė, Inovatorė, Stabilizuotoja, Mentorius, Variklis, Architektė.</p>
+    <p class="note">Privatumas: atsakymai niekur nesiunčiami; skaičiavimas lokaliai.</p>
+  </section>
+
+  <section id="items" class="card">
+    <h2>Teiginiai</h2>
+    <p class="note">Likertas: 1 – Visiškai nesutinku · 5 – Visiškai sutinku. <em>Invertuoti teiginiai</em> skaičiuojami priešingai.</p>
+    <div id="itemsContainer"></div>
+  </section>
+
+  <section id="results" class="grid">
+    <div class="card">
+      <h2>Rezultatai</h2>
+      <div id="summary" class="muted">Užpildykite visus teiginius ir paspauskite <span class="kbd">Gauti rezultatą</span>.</div>
+      <table id="tblScores" class="hidden">
+        <thead><tr><th>Domenas</th><th>Vidurkis (1–5)</th><th>Normalizuota (−1…+1)</th><th>%</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <h3 class="hidden" id="typesHdr">Tipų artimumas (TOP‑3)</h3>
+      <ol id="topTypes" class="hidden"></ol>
+    </div>
+    <div class="card">
+      <h2>Radar</h2>
+      <canvas id="radar"></canvas>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p class="note">© 2025 Divirgent Test · Atviro kodo demonstracija · Suderinama su GitHub Pages</p>
+</footer>
+
+<!-- Chart.js radarui -->
+<script src="https://cdn.jsdelivr.net/npm/chart.jst>
+<!-- Jūsų programinė logika -->
+./app.js</script>
+</body>
+</html>
