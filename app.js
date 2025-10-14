@@ -2,46 +2,35 @@
 (() => {
   'use strict';
 
-  // ---- Konfigūracija ----
   const JSON_PATH = './divirgent_v2_items_lt.json';
 
-  // ---- DOM nuorodos ----
   const el = {
     btnStart: document.getElementById('btnStart'),
     btnSubmit: document.getElementById('btnSubmit'),
     btnReset: document.getElementById('btnReset'),
-
     itemsWrap: document.getElementById('itemsContainer'),
-
     tbl: document.getElementById('tblScores'),
     tblBody: document.querySelector('#tblScores tbody'),
-
     topHdr: document.getElementById('typesHdr'),
     topList: document.getElementById('topTypes'),
-
     globalErr: document.getElementById('globalError'),
     summary: document.getElementById('summary'),
-
     radar: document.getElementById('radar')
   };
 
-  // ---- Būsena ----
   let META = null;
   let ITEMS = [];
   let RADAR = null;
 
-  // ---- Pagalbinės ----
   const scrollTo = (node) => node?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  const normMinus1to1 = (mean15) => ((mean15 - 3) / 2);           // 1..5 -> -1..+1
-  const pct0to100     = (mean15) => Math.round(((mean15 - 1) / 4) * 100); // 1..5 -> 0..100
+  const normMinus1to1 = (mean15) => ((mean15 - 3) / 2);
+  const pct0to100     = (mean15) => Math.round(((mean15 - 1) / 4) * 100);
 
   const showError = (msg) => {
     if (!el.globalErr) { console.error(msg); return; }
     el.globalErr.textContent = msg;
     el.globalErr.classList.remove('hidden');
   };
-
   const clearError = () => {
     if (!el.globalErr) return;
     el.globalErr.textContent = '';
@@ -70,7 +59,7 @@
     return out;
   };
 
-  const toES = (nNorm) => -nNorm; // Neurotiškumas -> Emocinis stabilumas
+  const toES = (nNorm) => -nNorm;
 
   const vectorFromScores = (scores) => {
     const e  = normMinus1to1(scores['Ekstraversija'].mean);
@@ -91,14 +80,13 @@
     const dict = centroids || {};
     const arr = Object.entries(dict).map(([name, c]) => {
       const d = euclidDist(vec, c);
-      const sim = 1 / (1 + d); // 0..1, kuo mažesnis atstumas, tuo didesnis panašumas
+      const sim = 1 / (1 + d);
       return { name, dist: d, sim };
     });
     arr.sort((a, b) => a.dist - b.dist);
     return arr.slice(0, 3);
   };
 
-  // ---- Render: forma ----
   const renderForm = () => {
     if (!el.itemsWrap) return showError('Nerastas #itemsContainer elementas.');
 
@@ -145,7 +133,6 @@
     el.itemsWrap.appendChild(frag);
   };
 
-  // ---- Skaitymas iš formos ----
   const readResponses = () => {
     const out = [];
     for (const it of ITEMS) {
@@ -158,7 +145,6 @@
     return { ok: true, rows: out };
   };
 
-  // ---- Render: lentelė + TOP-3 ----
   const renderScores = (scores, vec) => {
     if (!el.tblBody || !el.tbl) return;
 
@@ -180,7 +166,6 @@
 
     el.tbl.classList.remove('hidden');
 
-    // TOP-3 tipai
     const top = top3Types(vec, META?.type_centroids || {});
     el.topList.innerHTML = '';
     top.forEach(t => {
@@ -194,7 +179,6 @@
     if (el.summary) el.summary.textContent = 'Rezultatai sugeneruoti. Žemiau – domenų vidurkiai ir tipų artimumas.';
   };
 
-  // ---- Render: Radar ----
   const renderRadar = (scores) => {
     if (!el.radar) return;
     if (typeof Chart === 'undefined') {
@@ -207,7 +191,7 @@
       E:  scores['Ekstraversija'].mean,
       A:  scores['Malonumas'].mean,
       C:  scores['Sąžiningumas/Atidumas'].mean,
-      ES: 6 - scores['Neurotiškumas'].mean, // aukščiau – stabilesnis
+      ES: 6 - scores['Neurotiškumas'].mean,
       O:  scores['Atvirumas patirčiai'].mean
     };
     const dataPct = labels.map(k => pct0to100(mean[k]));
@@ -244,7 +228,6 @@
     RADAR = new Chart(el.radar, cfg);
   };
 
-  // ---- Reset ----
   const resetForm = () => {
     document.querySelectorAll('#itemsContainer input[type="radio"]').forEach(i => i.checked = false);
     if (el.tbl) el.tbl.classList.add('hidden');
@@ -258,10 +241,8 @@
     clearError();
   };
 
-  // ---- Inicijavimas ----
   const init = async () => {
     try {
-      // Saugikliai: patikriname, ar privalomi mazgai egzistuoja
       const requiredNodes = [el.itemsWrap, el.tbl, el.tblBody, el.topHdr, el.topList, el.summary];
       if (requiredNodes.some(n => !n)) {
         throw new Error('HTML neturi visų reikiamų elementų (patikrink ID).');
@@ -286,7 +267,6 @@
     }
   };
 
-  // ---- Įvykiai ----
   el.btnStart?.addEventListener('click', () => scrollTo(document.getElementById('items')));
   el.btnReset?.addEventListener('click', resetForm);
   el.btnSubmit?.addEventListener('click', () => {
@@ -303,7 +283,6 @@
     scrollTo(document.getElementById('results'));
   });
 
-  // ---- Startas ----
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
